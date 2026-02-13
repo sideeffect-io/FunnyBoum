@@ -17,53 +17,57 @@ struct ContentView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            ZStack {
-                RetroBackgroundView()
+        ZStack {
+            RetroBackgroundView()
 
-                GeometryReader { proxy in
-                    Group {
-                        if isPhoneLayout {
-                            phoneLayout(in: proxy.size)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 4)
-                        } else {
-                            regularLayout
-                                .padding(14)
-                        }
+            GeometryReader { proxy in
+                let regularContainerWidth = max(900, min(proxy.size.width - 24, 1450))
+                let regularContainerHeight = max(700, min(proxy.size.height - 24, 980))
+
+                Group {
+                    if isPhoneLayout {
+                        phoneLayout(in: proxy.size)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 4)
+                    } else {
+                        regularLayout
+                            .padding(14)
                     }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                    .background(
-                        RoundedRectangle(cornerRadius: isPhoneLayout ? 20 : 8)
-                            .fill(RetroPalette.chromeGradient)
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: isPhoneLayout ? 20 : 8)
-                            .stroke(RetroPalette.chromeEdgeDark, lineWidth: 2)
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: isPhoneLayout ? 19 : 7)
-                            .stroke(RetroPalette.chromeEdgeLight.opacity(0.86), lineWidth: 1)
-                            .padding(1)
-                    )
-                    .padding(isPhoneLayout ? 2 : 12)
                 }
-
-                if store.state.phase == .lost {
-                    ExplosionOverlayView(
-                        trigger: store.state.explosionSequence,
-                        showActions: store.isLossCardVisible,
-                        onNewGame: {
-                            store.restartGame()
-                        }
-                    )
-                    .transition(.opacity)
-                }
+                .frame(
+                    maxWidth: isPhoneLayout ? .infinity : regularContainerWidth,
+                    maxHeight: isPhoneLayout ? .infinity : regularContainerHeight,
+                    alignment: isPhoneLayout ? .top : .center
+                )
+                .background(
+                    RoundedRectangle(cornerRadius: isPhoneLayout ? 20 : 8)
+                        .fill(RetroPalette.chromeGradient)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: isPhoneLayout ? 20 : 8)
+                        .stroke(RetroPalette.chromeEdgeDark, lineWidth: 2)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: isPhoneLayout ? 19 : 7)
+                        .stroke(RetroPalette.chromeEdgeLight.opacity(0.86), lineWidth: 1)
+                        .padding(1)
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: isPhoneLayout ? .top : .center)
+                .padding(isPhoneLayout ? 2 : 12)
             }
-            .navigationTitle(isPhoneLayout ? "" : "Funny Boom")
-            .platformInlineNavigationTitle()
-            .hidePhoneNavigationBar(isPhoneLayout)
+
+            if store.state.phase == .lost {
+                ExplosionOverlayView(
+                    trigger: store.state.explosionSequence,
+                    showActions: store.isLossCardVisible,
+                    onNewGame: {
+                        store.restartGame()
+                    }
+                )
+                .transition(.opacity)
+            }
         }
+        .hidePlatformStatusBar(!isPhoneLayout)
         .sheet(isPresented: $store.isRulesPresented) {
             RulesSheetView()
                 .presentationDetents([.medium, .large])
@@ -112,7 +116,7 @@ struct ContentView: View {
                 }
             )
         }
-        .preferredColorScheme(.light)
+        .iOSPreferredColorScheme(.dark)
         .task(id: isPhoneLayout) {
             enforceBoardSizeForCurrentDevice()
         }
@@ -223,7 +227,7 @@ struct ContentView: View {
                     resetBoardButton(compact: true)
                 }
                 Spacer()
-                boardModeToggle(compact: true)
+                boardControlHint(compact: true)
             }
 
             ZStack {
@@ -285,8 +289,8 @@ struct ContentView: View {
     private var header: some View {
         HStack(alignment: .top, spacing: 16) {
             VStack(alignment: .leading, spacing: 4) {
-                Text("Funny   B O U M")
-                    .retroPixelFont(size: 45, weight: .black, color: RetroPalette.ink, tracking: 0.9)
+                Text("Funny BOUM")
+                    .retroPixelFont(size: 45, weight: .black, color: RetroPalette.ink, tracking: 0.6)
 
                 Text("Version # 1.0   (c) B/W,1995.")
                     .retroPixelFont(size: 14, weight: .black, color: RetroPalette.ink.opacity(0.9), tracking: 0.5)
@@ -410,7 +414,7 @@ struct ContentView: View {
                     resetBoardButton(compact: false)
                 }
                 Spacer()
-                boardModeToggle(compact: false)
+                boardControlHint(compact: false)
             }
 
             GeometryReader { proxy in
@@ -479,7 +483,7 @@ struct ContentView: View {
         case .idle:
             "Tap any square to start. First tap is always safe."
         case .running:
-            "Reveal mode opens cells. Flag mode marks bombs."
+            "Quick press reveals cells. Long press flags bombs."
         case .won:
             "Board completed. Submit your nickname for the top 10."
         case .lost:
@@ -487,54 +491,14 @@ struct ContentView: View {
         }
     }
 
-    private func boardModeToggle(compact: Bool) -> some View {
-        HStack(spacing: 1) {
-            modeButton(
-                title: "Reveal",
-                symbol: "hand.tap",
-                isSelected: store.state.playerMode == .reveal,
-                compact: compact
-            ) {
-                store.send(.setPlayerMode(.reveal))
-            }
-
-            modeButton(
-                title: "Flag",
-                symbol: "flag.fill",
-                isSelected: store.state.playerMode == .flag,
-                compact: compact
-            ) {
-                store.send(.setPlayerMode(.flag))
-            }
-        }
-        .padding(2)
-        .retroInsetField(cornerRadius: compact ? 7 : 6)
-    }
-
-    private func modeButton(
-        title: String,
-        symbol: String,
-        isSelected: Bool,
-        compact: Bool,
-        action: @escaping () -> Void
-    ) -> some View {
-        Button(action: action) {
-            HStack(spacing: 4) {
-                if !compact {
-                    Image(systemName: symbol)
-                        .font(.system(size: 11, weight: .bold))
-                }
-                Text(title)
-                    .font(.system(size: compact ? 12 : 13, weight: .bold, design: .monospaced))
-            }
-            .foregroundStyle(isSelected ? RetroPalette.ink : RetroPalette.cobalt)
-            .padding(.horizontal, compact ? 10 : 12)
+    private func boardControlHint(compact: Bool) -> some View {
+        Text("quick press: reveal, long press: flag")
+            .font(.system(size: compact ? 10 : 12, weight: .bold, design: .monospaced))
+            .foregroundStyle(RetroPalette.cobalt.opacity(0.9))
+            .multilineTextAlignment(.trailing)
+            .padding(.horizontal, compact ? 6 : 10)
             .padding(.vertical, compact ? 5 : 6)
-            .frame(minWidth: compact ? 68 : 84)
-            .background(isSelected ? RetroPalette.fieldFill : .clear)
-            .clipShape(.rect(cornerRadius: compact ? 6 : 5))
-        }
-        .buttonStyle(.plain)
+            .retroInsetField(cornerRadius: compact ? 5 : 6)
     }
 
     private func controlButton(title: String, action: @escaping () -> Void) -> some View {
@@ -722,14 +686,16 @@ private struct ControlTag: View {
     let subtitle: String
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 1) {
+        HStack(alignment: .firstTextBaseline, spacing: 6) {
             Text(title)
-                .retroPixelFont(size: 10, weight: .black, color: RetroPalette.cobalt.opacity(0.9), tracking: 0.4)
+                .retroPixelFont(size: 12, weight: .black, color: RetroPalette.cobalt.opacity(0.9), tracking: 0.35)
             Text(subtitle)
                 .retroPixelFont(size: 14, weight: .bold, color: RetroPalette.ink, tracking: 0.4)
         }
-        .padding(.horizontal, 9)
-        .padding(.vertical, 6)
+        .lineLimit(1)
+        .fixedSize(horizontal: true, vertical: false)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 7)
         .retroTabStyle()
     }
 }
@@ -918,26 +884,23 @@ private struct CellButtonView: View {
     let onFlag: () -> Void
 
     var body: some View {
-        Button(action: onReveal) {
-            CellFaceView(
-                isRevealed: isRevealed,
-                isFlagged: isFlagged,
-                mineVisibleFromXray: mineVisibleFromXray,
-                isMine: isMine,
-                adjacentMines: adjacentMines,
-                scorePulse: scorePulse,
-                cellSide: cellSide
-            )
-        }
-        .buttonStyle(.plain)
-        .disabled(!state.canInteractWithBoard || state.funnyBoomOverlay != nil)
-        .contextMenu {
-            Button(isFlagged ? "Unflag" : "Flag") {
-                onFlag()
-            }
-        }
+        CellFaceView(
+            isRevealed: isRevealed,
+            isFlagged: isFlagged,
+            mineVisibleFromXray: mineVisibleFromXray,
+            isMine: isMine,
+            adjacentMines: adjacentMines,
+            scorePulse: scorePulse,
+            cellSide: cellSide
+        )
+        .contentShape(.rect)
+        .allowsHitTesting(state.canInteractWithBoard && state.funnyBoomOverlay == nil)
+        .gesture(interactionGesture)
         .accessibilityLabel(accessibilityLabel)
-        .accessibilityHint("Double tap to reveal, or use the context menu to flag")
+        .accessibilityHint("Quick press reveals. Long press flags or unflags.")
+        .accessibilityAddTraits(.isButton)
+        .accessibilityAction(.default, onReveal)
+        .accessibilityAction(named: Text(isFlagged ? "Unflag" : "Flag"), onFlag)
     }
 
     private var isMine: Bool {
@@ -975,6 +938,21 @@ private struct CellButtonView: View {
             return "Empty tile"
         }
         return "Tile with \(adjacentMines) neighboring bombs"
+    }
+
+    private var interactionGesture: some Gesture {
+        LongPressGesture(minimumDuration: 0.45)
+            .exclusively(before: TapGesture())
+            .onEnded { value in
+                switch value {
+                case .first(true):
+                    onFlag()
+                case .first(false):
+                    break
+                case .second:
+                    onReveal()
+                }
+            }
     }
 }
 
@@ -1052,7 +1030,9 @@ private struct CellFaceView: View {
 
     private func scorePulseIndicator(for scorePulse: TileScorePulse) -> some View {
         let isBonus = scorePulse.pointsDelta >= 0
-        let highlight = isBonus ? Color.green : Color.red
+        let highlight = isBonus
+            ? Color(red: 0.10, green: 0.46, blue: 0.14)
+            : Color(red: 0.58, green: 0.12, blue: 0.12)
 
         return Text(scorePulse.label)
             .font(.system(size: max(8, cellSide * 0.42), weight: .black, design: .rounded))
@@ -1127,20 +1107,29 @@ private struct FunnyBoomOverlayBoardView: View {
 
     var body: some View {
         ZStack {
-            RetroPalette.boardWellDark.opacity(0.86)
+            RetroPalette.boardWellDark
                 .clipShape(.rect(cornerRadius: 8))
 
             VStack(spacing: compactStyle ? 4 : 8) {
                 HStack {
-                    Label(compactStyle ? "Funny Boom \(overlay.secondsRemaining)s" : "Funny Boom: \(overlay.secondsRemaining)s", systemImage: "theatermasks.fill")
-                        .font(.system(compactStyle ? .caption : .callout, design: .monospaced).weight(.bold))
-                        .foregroundStyle(RetroPalette.cobalt)
-                        .padding(.horizontal, compactStyle ? 8 : 10)
-                        .padding(.vertical, compactStyle ? 5 : 7)
-                        .retroInsetField(cornerRadius: 6)
+                    VStack(alignment: .leading, spacing: compactStyle ? 1 : 2) {
+                        Text(overlay.isBriefing ? "FUNNY BOOM READY" : "FUNNY BOOM LIVE")
+                            .retroPixelFont(
+                                size: compactStyle ? 10 : 11,
+                                weight: .black,
+                                color: RetroPalette.cobalt,
+                                tracking: 0.5
+                            )
+                        Text(overlay.isBriefing ? "Wait, then tap clown heads for +10." : "Tap clown heads now for +10.")
+                            .font(.system(size: compactStyle ? 10 : 12, weight: .bold, design: .monospaced))
+                            .foregroundStyle(RetroPalette.ink.opacity(0.82))
+                    }
                     Spacer()
+                    countdownPill
                 }
-                .padding(.horizontal, compactStyle ? 2 : 0)
+                .padding(.horizontal, compactStyle ? 8 : 10)
+                .padding(.vertical, compactStyle ? 6 : 8)
+                .retroInsetField(cornerRadius: 6)
 
                 Group {
                     if allowsScrolling {
@@ -1152,6 +1141,36 @@ private struct FunnyBoomOverlayBoardView: View {
                     } else {
                         boardGrid()
                             .padding(2)
+                    }
+                }
+                .overlay {
+                    if overlay.isBriefing {
+                        Color.black.opacity(0.28)
+                            .overlay {
+                                VStack(spacing: compactStyle ? 5 : 7) {
+                                    Text("Get Ready")
+                                        .retroPixelFont(
+                                            size: compactStyle ? 13 : 15,
+                                            weight: .black,
+                                            color: .white,
+                                            tracking: 0.55
+                                        )
+                                    Text("Clown hunt starts in \(overlay.secondsRemaining)s")
+                                        .font(.system(size: compactStyle ? 11 : 12, weight: .bold, design: .monospaced))
+                                        .foregroundStyle(.white.opacity(0.92))
+                                }
+                                .padding(.horizontal, compactStyle ? 12 : 16)
+                                .padding(.vertical, compactStyle ? 8 : 10)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .fill(Color.black.opacity(0.72))
+                                )
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(RetroPalette.chromeEdgeLight.opacity(0.6), lineWidth: 1)
+                                )
+                            }
+                            .allowsHitTesting(false)
                     }
                 }
             }
@@ -1166,6 +1185,7 @@ private struct FunnyBoomOverlayBoardView: View {
     private func boardGrid() -> some View {
         BoardGridView(dimensions: dimensions, cellSide: cellSide) { coordinate in
             Button {
+                guard overlay.isInteractive else { return }
                 onTap(coordinate)
             } label: {
                 ZStack {
@@ -1183,69 +1203,77 @@ private struct FunnyBoomOverlayBoardView: View {
                         .stroke(RetroPalette.hiddenTileEdge, lineWidth: 0.8)
                 )
             }
+            .disabled(!overlay.isInteractive)
             .buttonStyle(.plain)
         }
+    }
+
+    private var countdownPill: some View {
+        VStack(spacing: 1) {
+            Text(overlay.isBriefing ? "Starts" : "Left")
+                .font(.system(size: compactStyle ? 9 : 10, weight: .bold, design: .monospaced))
+                .foregroundStyle(RetroPalette.cobalt.opacity(0.9))
+            Text("\(overlay.secondsRemaining)s")
+                .retroPixelFont(
+                    size: compactStyle ? 18 : 20,
+                    weight: .black,
+                    color: overlay.isBriefing ? .orange : RetroPalette.cobalt,
+                    tracking: 0.6
+                )
+        }
+        .frame(minWidth: compactStyle ? 54 : 64)
+        .padding(.horizontal, compactStyle ? 8 : 10)
+        .padding(.vertical, compactStyle ? 5 : 6)
+        .retroInsetField(cornerRadius: 6)
     }
 }
 
 private struct RetroBackgroundView: View {
     var body: some View {
-        GeometryReader { proxy in
-            let topChromeHeight = min(max(72, proxy.size.height * 0.12), 128)
+        GeometryReader { _ in
+            ZStack {
+                RetroPalette.boardAreaGradient
 
-            ZStack(alignment: .top) {
-                RetroPalette.windowBackground
+                Canvas { context, size in
+                    let pixel = max(2.8, min(4.2, size.width / 130)) / 4.0
+                    let glowRadius = max(0.14, pixel * 0.72)
+                    let fGlyph = RetroBackgroundView.glyphPath(from: RetroBackgroundView.fBitmap, pixel: pixel)
+                    let bGlyph = RetroBackgroundView.glyphPath(from: RetroBackgroundView.bBitmap, pixel: pixel)
+                    let bOffset = CGPoint(x: pixel * 4.0, y: pixel * 3.0)
+                    let stepX = pixel * 16.5
+                    let stepY = pixel * 13.5
 
-                VStack(spacing: 0) {
-                    Color.clear
-                        .frame(height: topChromeHeight)
+                    var rowIndex = 0
+                    for y in stride(from: -stepY, through: size.height + stepY, by: stepY) {
+                        var columnIndex = 0
+                        let rowOffset = rowIndex.isMultiple(of: 2) ? pixel * 1.2 : pixel * 3.7
 
-                    ZStack {
-                        RetroPalette.boardAreaGradient
+                        for x in stride(from: -stepX, through: size.width + stepX, by: stepX) {
+                            let motifOrigin = CGPoint(
+                                x: x + rowOffset + CGFloat((rowIndex + columnIndex) % 2) * (pixel * 0.55),
+                                y: y + pixel * 0.9
+                            )
+                            drawGlyph(
+                                fGlyph,
+                                at: motifOrigin,
+                                in: &context,
+                                glowRadius: glowRadius
+                            )
 
-                        Canvas { context, size in
-                            let pixel = max(2.8, min(4.2, size.width / 130)) / 4.0
-                            let glowRadius = max(0.14, pixel * 0.72)
-                            let fGlyph = RetroBackgroundView.glyphPath(from: RetroBackgroundView.fBitmap, pixel: pixel)
-                            let bGlyph = RetroBackgroundView.glyphPath(from: RetroBackgroundView.bBitmap, pixel: pixel)
-                            let bOffset = CGPoint(x: pixel * 4.0, y: pixel * 3.0)
-                            let stepX = pixel * 16.5
-                            let stepY = pixel * 13.5
-
-                            var rowIndex = 0
-                            for y in stride(from: -stepY, through: size.height + stepY, by: stepY) {
-                                var columnIndex = 0
-                                let rowOffset = rowIndex.isMultiple(of: 2) ? pixel * 1.2 : pixel * 3.7
-
-                                for x in stride(from: -stepX, through: size.width + stepX, by: stepX) {
-                                    let motifOrigin = CGPoint(
-                                        x: x + rowOffset + CGFloat((rowIndex + columnIndex) % 2) * (pixel * 0.55),
-                                        y: y + pixel * 0.9
-                                    )
-                                    drawGlyph(
-                                        fGlyph,
-                                        at: motifOrigin,
-                                        in: &context,
-                                        glowRadius: glowRadius
-                                    )
-
-                                    let bOrigin = CGPoint(
-                                        x: motifOrigin.x + bOffset.x + (columnIndex.isMultiple(of: 2) ? pixel * 0.28 : -pixel * 0.18),
-                                        y: motifOrigin.y + bOffset.y + (rowIndex.isMultiple(of: 2) ? pixel * 0.42 : -pixel * 0.12)
-                                    )
-                                    drawGlyph(
-                                        bGlyph,
-                                        at: bOrigin,
-                                        in: &context,
-                                        glowRadius: glowRadius
-                                    )
-                                    columnIndex += 1
-                                }
-                                rowIndex += 1
-                            }
+                            let bOrigin = CGPoint(
+                                x: motifOrigin.x + bOffset.x + (columnIndex.isMultiple(of: 2) ? pixel * 0.28 : -pixel * 0.18),
+                                y: motifOrigin.y + bOffset.y + (rowIndex.isMultiple(of: 2) ? pixel * 0.42 : -pixel * 0.12)
+                            )
+                            drawGlyph(
+                                bGlyph,
+                                at: bOrigin,
+                                in: &context,
+                                glowRadius: glowRadius
+                            )
+                            columnIndex += 1
                         }
+                        rowIndex += 1
                     }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
         }
@@ -1401,12 +1429,12 @@ private struct RulesSheetView: View {
                     Text("Some empty tiles can trigger +10 points, -10 points, X-Ray vision, Superhero mode, or Funny Boom mode.")
                     Text("X-Ray reveals hidden bombs with a pulse for a short time.")
                     Text("Superhero mode lets you reveal bombs without losing while it is active.")
-                    Text("Funny Boom shows a temporary clown board for 5 seconds. Each clown gives +10 points.")
+                    Text("Funny Boom starts with a 5-second briefing countdown, then unlocks clown tapping for a short burst. Each clown gives +10 points.")
                 }
 
                 Section("Controls") {
-                    Text("Use Reveal mode to open tiles. Use Flag mode to mark bomb candidates.")
-                    Text("On iPad and macOS you can also use the context menu on a tile to flag or unflag.")
+                    Text("Quick press reveals a tile.")
+                    Text("Long press flags or unflags a tile.")
                 }
             }
             .navigationTitle("Rules")
@@ -1702,6 +1730,24 @@ private extension View {
         } else {
             self
         }
+#else
+        self
+#endif
+    }
+
+    @ViewBuilder
+    func hidePlatformStatusBar(_ hidden: Bool) -> some View {
+#if os(iOS)
+        statusBar(hidden: hidden)
+#else
+        self
+#endif
+    }
+
+    @ViewBuilder
+    func iOSPreferredColorScheme(_ colorScheme: ColorScheme?) -> some View {
+#if os(iOS)
+        preferredColorScheme(colorScheme)
 #else
         self
 #endif

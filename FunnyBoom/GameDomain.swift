@@ -303,10 +303,44 @@ struct TileScorePulse: Identifiable, Equatable, Sendable {
     }
 }
 
+enum FunnyBoomPhase: Equatable, Sendable {
+    case briefing(secondsRemaining: Int)
+    case active(secondsRemaining: Int)
+
+    var secondsRemaining: Int {
+        switch self {
+        case let .briefing(seconds), let .active(seconds):
+            return seconds
+        }
+    }
+
+    var isInteractive: Bool {
+        if case .active = self {
+            return true
+        }
+        return false
+    }
+}
+
 struct FunnyBoomOverlay: Equatable, Sendable {
     let clownTiles: Set<BoardCoordinate>
     var revealedClowns: Set<BoardCoordinate>
-    var secondsRemaining: Int
+    var phase: FunnyBoomPhase
+
+    var secondsRemaining: Int {
+        phase.secondsRemaining
+    }
+
+    var isInteractive: Bool {
+        phase.isInteractive
+    }
+
+    var isBriefing: Bool {
+        if case .briefing = phase {
+            return true
+        }
+        return false
+    }
 }
 
 struct PendingVictory: Identifiable, Equatable, Sendable {
@@ -483,7 +517,8 @@ enum ScoreRules {
     static let eventPoints = 10
     static let xrayDuration = 12
     static let superheroDuration = 12
-    static let funnyBoomDuration = 5
+    static let funnyBoomBriefingDuration = 5
+    static let funnyBoomPlayDuration = 8
     static let tileScorePulseDuration = 2
     static let specialTriggerProbability = 0.36
     static let clownDensity = 0.18
@@ -634,6 +669,7 @@ enum GameReducer {
     private static func tapFunnyBoomCell(state: GameState, coordinate: BoardCoordinate) -> GameState {
         guard state.phase == .running else { return state }
         guard var overlay = state.funnyBoomOverlay else { return state }
+        guard overlay.isInteractive else { return state }
 
         var nextState = state
 
@@ -705,11 +741,22 @@ enum GameReducer {
         }
 
         if var overlay = nextState.funnyBoomOverlay {
-            overlay.secondsRemaining -= 1
-            if overlay.secondsRemaining <= 0 {
-                nextState.funnyBoomOverlay = nil
-            } else {
+            switch overlay.phase {
+            case let .briefing(secondsRemaining):
+                if secondsRemaining <= 1 {
+                    overlay.phase = .active(secondsRemaining: ScoreRules.funnyBoomPlayDuration)
+                } else {
+                    overlay.phase = .briefing(secondsRemaining: secondsRemaining - 1)
+                }
                 nextState.funnyBoomOverlay = overlay
+
+            case let .active(secondsRemaining):
+                if secondsRemaining <= 1 {
+                    nextState.funnyBoomOverlay = nil
+                } else {
+                    overlay.phase = .active(secondsRemaining: secondsRemaining - 1)
+                    nextState.funnyBoomOverlay = overlay
+                }
             }
         }
 
@@ -867,14 +914,7 @@ enum GameReducer {
             state.funnyBoomOverlay = FunnyBoomOverlay(
                 clownTiles: clowns,
                 revealedClowns: [],
-                secondsRemaining: ScoreRules.funnyBoomDuration
-            )
-            state.specialModeNotice = makeModeNotice(
-                style: .funnyBoom,
-                title: "FUNNY BOOM",
-                subtitle: "Tap clowns fast for bonus points",
-                symbol: "face.smiling.fill",
-                duration: ScoreRules.funnyBoomDuration
+                phase: .briefing(secondsRemaining: ScoreRules.funnyBoomBriefingDuration)
             )
         }
     }

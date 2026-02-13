@@ -162,8 +162,27 @@ struct FunnyBoomTests {
 
         let pointsBefore = withOverlay.points
 
-        let afterClownTap = GameReducer.reduce(
+        let blockedDuringBriefing = GameReducer.reduce(
             state: withOverlay,
+            action: .tapFunnyBoomCell(clownTile),
+            environment: environment
+        )
+
+        #expect(blockedDuringBriefing.points == pointsBefore)
+
+        var activeOverlayState = withOverlay
+        for _ in 0..<ScoreRules.funnyBoomBriefingDuration {
+            activeOverlayState = GameReducer.reduce(
+                state: activeOverlayState,
+                action: .timerTick,
+                environment: environment
+            )
+        }
+
+        #expect(activeOverlayState.funnyBoomOverlay?.isInteractive == true)
+
+        let afterClownTap = GameReducer.reduce(
+            state: activeOverlayState,
             action: .tapFunnyBoomCell(clownTile),
             environment: environment
         )
@@ -198,7 +217,11 @@ struct FunnyBoomTests {
             neutralizedBombs: [],
             specialRollTiles: [],
             activePower: .xray(secondsRemaining: 1),
-            funnyBoomOverlay: FunnyBoomOverlay(clownTiles: [], revealedClowns: [], secondsRemaining: 1),
+            funnyBoomOverlay: FunnyBoomOverlay(
+                clownTiles: [],
+                revealedClowns: [],
+                phase: .active(secondsRemaining: 1)
+            ),
             pendingVictory: nil,
             scores: [],
             soundEnabled: true,
