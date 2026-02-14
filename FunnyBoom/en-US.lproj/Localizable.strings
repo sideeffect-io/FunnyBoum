@@ -1,0 +1,109 @@
+"difficulty.debutant" = "Beginner";
+"difficulty.amateur" = "Amateur";
+"difficulty.expert" = "Expert";
+"difficulty.veteran" = "Veteran";
+"difficulty.migraine" = "Migraine";
+
+"power.xray" = "X-Ray";
+"power.superhero" = "Superhero";
+"power.placeholder" = "Superhero 88s";
+
+"special_notice.xray.title" = "X-RAY CHARGING";
+"special_notice.xray.subtitle" = "Scan starts soon. Bombs will be visible for %llds.";
+"special_notice.superhero.title" = "SUIT POWERING UP";
+"special_notice.superhero.subtitle" = "Armor starts soon. Bomb tiles are safe for %llds.";
+"special_notice.funny_boom.title" = "CLOWN HUNT LOADING";
+"special_notice.funny_boom.subtitle" = "Tap clown faces for +%lld. Hunt lasts %llds.";
+
+"hud.score" = "Score";
+"hud.time" = "Time";
+"hud.bombs" = "Bombs";
+"hud.bonus" = "Bonus";
+"hud.bombs_left" = "Bombs Left";
+
+"menu.rules" = "Rules";
+"menu.difficulty" = "Difficulty";
+"menu.board" = "Board";
+"menu.scores" = "Scores";
+"menu.section.game" = "Game";
+"menu.rules.subtitle" = "View mechanics and special-square behavior";
+"menu.scores.subtitle" = "Open top 10 leaderboard";
+"menu.mine_density" = "Mine density %lld%%";
+"menu.board_size" = "Board Size";
+
+"status.idle" = "Tap any square to start. First tap is always safe.";
+"status.running" = "Quick press reveals cells. Long press flags bombs.";
+"status.won" = "Board completed. Submit your nickname for the top 10.";
+"status.lost" = "Boom. Start a new board when you are ready.";
+
+"action.new_short" = "New";
+"action.new_game" = "New Game";
+"action.unflag" = "Unflag";
+"action.flag" = "Flag";
+"action.save_top_10" = "Save to Top 10";
+"action.new_game_now" = "New Game Now";
+"action.take_me_there" = "TAKE ME THERE";
+"action.take_me_there.hint" = "Skip the countdown and activate this special mode now.";
+
+"cell.flagged" = "Flagged tile";
+"cell.hidden" = "Hidden tile";
+"cell.bomb" = "Bomb";
+"cell.empty" = "Empty tile";
+"cell.neighbors" = "Tile with %lld neighboring bombs";
+
+"funny_boom.ready" = "FUNNY BOUM READY";
+"funny_boom.live" = "FUNNY BOUM LIVE";
+"funny_boom.wait_instruction" = "Wait, then tap clown heads for +10.";
+"funny_boom.live_instruction" = "Tap clown heads now for +10.";
+"funny_boom.starts_in" = "Clown hunt starts in %llds";
+
+"countdown.starts" = "Starts";
+"countdown.left" = "Left";
+
+"sheet.menu.title" = "Game Menu";
+"sheet.menu.subtitle" = "Retro controls and run setup";
+"sheet.rules.title" = "Rules";
+"sheet.rules.subtitle" = "Quick briefing before the blast";
+"sheet.scores.title" = "Top 10";
+"sheet.scores.subtitle" = "Fastest and sharpest bomb hunters";
+"sheet.victory.title" = "Board Cleared";
+"sheet.victory.subtitle" = "Submit your run to the leaderboard";
+
+"rules.classic.title" = "Classic";
+"rules.classic.1" = "Reveal any safe tile. A revealed number tells how many bombs touch that tile in the 8 surrounding positions.";
+"rules.classic.2" = "Tap a bomb and you lose. Reveal every non-bomb tile to win.";
+"rules.classic.3" = "When a revealed tile is empty, neighboring empty areas expand automatically.";
+"rules.special.title" = "Special Squares";
+"rules.special.1" = "Some empty tiles can trigger +10 points, -10 points, X-Ray vision, Superhero mode, or Funny Boum mode.";
+"rules.special.2" = "X-Ray reveals hidden bombs with a pulse for a short time.";
+"rules.special.3" = "Superhero mode lets you reveal bombs without losing while it is active.";
+"rules.special.4" = "Funny Boum now starts with a special-mode popup countdown, then launches a short clown hunt. Tap clown faces for +10 points each during the timer.";
+"rules.controls.title" = "Controls";
+"rules.controls.1" = "Quick press reveals a tile.";
+"rules.controls.2" = "Long press flags or unflags a tile.";
+
+"scores.points_time" = "Points %lld • Time %llds";
+"victory.score_points_time" = "Score %lld • Points %lld • Time %llds";
+
+"Funny Boum" = "Funny Boum";
+"Funny BOUM" = "Funny BOUM";
+"Menu" = "Menu";
+"Board" = "Board";
+"Version # 1.0   (c) B/W,1995." = "Version # 1.0   (c) B/W,1995.";
+"2026 Edition" = "2026 Edition";
+"Retro-modern generation" = "Retro-modern generation";
+"Match" = "Match";
+"quick press: reveal, long press: flag" = "quick press: reveal, long press: flag";
+"New game" = "New game";
+"Reset current board and start a new round" = "Reset current board and start a new round";
+"SPECIAL MODE INCOMING" = "SPECIAL MODE INCOMING";
+"Quick press reveals. Long press flags or unflags." = "Quick press reveals. Long press flags or unflags.";
+"Get Ready" = "Get Ready";
+"Won" = "Won";
+"Close" = "Close";
+"No scores yet. Clear a board to enter the ranking." = "No scores yet. Clear a board to enter the ranking.";
+"NEW" = "NEW";
+"Nickname" = "Nickname";
+"BOOM" = "BOOM";
+"The minefield detonated. Launch a fresh run." = "The minefield detonated. Launch a fresh run.";
+"New Game" = "New Game";

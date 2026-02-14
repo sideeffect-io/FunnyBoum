@@ -1,0 +1,109 @@
+"difficulty.debutant" = "Débutant";
+"difficulty.amateur" = "Amateur";
+"difficulty.expert" = "Expert";
+"difficulty.veteran" = "Vétéran";
+"difficulty.migraine" = "Migraine";
+
+"power.xray" = "Rayons X";
+"power.superhero" = "Super-héros";
+"power.placeholder" = "Super-héros 88s";
+
+"special_notice.xray.title" = "X-RAY EN CHARGE";
+"special_notice.xray.subtitle" = "Le scan commence bientôt. Les bombes seront visibles pendant %llds.";
+"special_notice.superhero.title" = "ARMURE EN CHARGE";
+"special_notice.superhero.subtitle" = "L'armure commence bientôt. Les cases bombes sont sans danger pendant %llds.";
+"special_notice.funny_boom.title" = "CHASSE AUX CLOWNS EN PRÉPARATION";
+"special_notice.funny_boom.subtitle" = "Touchez les têtes de clown pour +%lld. La chasse dure %llds.";
+
+"hud.score" = "Score";
+"hud.time" = "Temps";
+"hud.bombs" = "Bombes";
+"hud.bonus" = "Bonus";
+"hud.bombs_left" = "Bombes restantes";
+
+"menu.rules" = "Règles";
+"menu.difficulty" = "Difficulté";
+"menu.board" = "Grille";
+"menu.scores" = "Scores";
+"menu.section.game" = "Jeu";
+"menu.rules.subtitle" = "Voir les mécaniques et les cases spéciales";
+"menu.scores.subtitle" = "Ouvrir le classement top 10";
+"menu.mine_density" = "Densité de mines %lld%%";
+"menu.board_size" = "Taille de grille";
+
+"status.idle" = "Touchez une case pour commencer. La première touche est toujours sûre.";
+"status.running" = "Appui court pour révéler les cases. Appui long pour marquer les bombes.";
+"status.won" = "Grille terminée. Envoyez votre pseudo pour le top 10.";
+"status.lost" = "Boum. Lancez une nouvelle grille quand vous êtes prêt.";
+
+"action.new_short" = "Nouveau";
+"action.new_game" = "Nouvelle partie";
+"action.unflag" = "Retirer drapeau";
+"action.flag" = "Drapeau";
+"action.save_top_10" = "Enregistrer dans le top 10";
+"action.new_game_now" = "Nouvelle partie";
+"action.take_me_there" = "ON Y VA";
+"action.take_me_there.hint" = "Passer le compte a rebours et activer ce mode special maintenant.";
+
+"cell.flagged" = "Case marquée";
+"cell.hidden" = "Case cachée";
+"cell.bomb" = "Bombe";
+"cell.empty" = "Case vide";
+"cell.neighbors" = "Case avec %lld bombes voisines";
+
+"funny_boom.ready" = "FUNNY BOUM PRÊT";
+"funny_boom.live" = "FUNNY BOUM EN COURS";
+"funny_boom.wait_instruction" = "Attendez, puis touchez les têtes de clown pour +10.";
+"funny_boom.live_instruction" = "Touchez les têtes de clown maintenant pour +10.";
+"funny_boom.starts_in" = "La chasse aux clowns commence dans %llds";
+
+"countdown.starts" = "Début";
+"countdown.left" = "Reste";
+
+"sheet.menu.title" = "Menu du jeu";
+"sheet.menu.subtitle" = "Commandes rétro et réglages de partie";
+"sheet.rules.title" = "Règles";
+"sheet.rules.subtitle" = "Briefing rapide avant l'explosion";
+"sheet.scores.title" = "Top 10";
+"sheet.scores.subtitle" = "Les chasseurs de bombes les plus rapides et précis";
+"sheet.victory.title" = "Grille nettoyée";
+"sheet.victory.subtitle" = "Envoyez votre partie au classement";
+
+"rules.classic.title" = "Classique";
+"rules.classic.1" = "Révélez une case sûre. Un nombre révélé indique combien de bombes touchent cette case dans les 8 positions autour.";
+"rules.classic.2" = "Touchez une bombe et vous perdez. Révélez toutes les cases sans bombe pour gagner.";
+"rules.classic.3" = "Quand une case révélée est vide, les zones vides voisines s'ouvrent automatiquement.";
+"rules.special.title" = "Cases spéciales";
+"rules.special.1" = "Certaines cases vides peuvent déclencher +10 points, -10 points, la vision X-Ray, le mode Super-héros ou le mode Funny Boum.";
+"rules.special.2" = "X-Ray révèle les bombes cachées avec une pulsation pendant un court instant.";
+"rules.special.3" = "Le mode Super-héros vous permet de révéler des bombes sans perdre tant qu'il est actif.";
+"rules.special.4" = "Funny Boum démarre maintenant avec un compte à rebours en popup, puis lance une courte chasse aux clowns. Touchez les têtes de clown pour +10 points chacune pendant le chrono.";
+"rules.controls.title" = "Commandes";
+"rules.controls.1" = "Appui court: révèle une case.";
+"rules.controls.2" = "Appui long: pose ou retire un drapeau.";
+
+"scores.points_time" = "Points %lld • Temps %llds";
+"victory.score_points_time" = "Score %lld • Points %lld • Temps %llds";
+
+"Funny Boum" = "Funny Boum";
+"Funny BOUM" = "Funny BOUM";
+"Menu" = "Menu";
+"Board" = "Grille";
+"Version # 1.0   (c) B/W,1995." = "Version n° 1.0   (c) B/W,1995.";
+"2026 Edition" = "Édition 2026";
+"Retro-modern generation" = "Génération rétro-moderne";
+"Match" = "Partie";
+"quick press: reveal, long press: flag" = "appui court: révéler, appui long: drapeau";
+"New game" = "Nouvelle partie";
+"Reset current board and start a new round" = "Réinitialiser la grille actuelle et démarrer une nouvelle partie";
+"SPECIAL MODE INCOMING" = "MODE SPÉCIAL IMMINENT";
+"Quick press reveals. Long press flags or unflags." = "Appui court pour révéler. Appui long pour poser ou retirer un drapeau.";
+"Get Ready" = "Préparez-vous";
+"Won" = "Gagné";
+"Close" = "Fermer";
+"No scores yet. Clear a board to enter the ranking." = "Aucun score pour l'instant. Terminez une grille pour entrer au classement.";
+"NEW" = "NOUVEAU";
+"Nickname" = "Pseudo";
+"BOOM" = "BOUM";
+"The minefield detonated. Launch a fresh run." = "Le champ de mines a explosé. Lancez une nouvelle partie.";
+"New Game" = "Nouvelle partie";

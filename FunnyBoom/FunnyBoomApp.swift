@@ -13,5 +13,9 @@ struct FunnyBoomApp: App {
         WindowGroup {
             ContentView()
         }
+#if os(macOS)
+        .defaultSize(width: 1_160, height: 820)
+        .windowResizability(.contentMinSize)
+#endif
     }
 }
