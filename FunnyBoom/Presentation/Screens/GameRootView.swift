@@ -62,6 +62,7 @@ struct GameRootView: View {
                     let regularVerticalCenterOffset = isPadLayout
                         ? 0
                         : (proxy.safeAreaInsets.bottom - proxy.safeAreaInsets.top) / 2
+                    let isPadPortrait = isPadLayout && proxy.size.height > proxy.size.width
 
                     Group {
                         if isPhoneLayout {
@@ -69,7 +70,7 @@ struct GameRootView: View {
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 4)
                         } else {
-                            regularLayout
+                            regularLayout(isPadPortrait: isPadPortrait)
                                 .padding(isPadLayout ? 10 : 14)
                         }
                     }
@@ -219,21 +220,29 @@ struct GameRootView: View {
 #endif
     }
 
-    private var regularLayout: some View {
+    @ViewBuilder
+    private func regularLayout(isPadPortrait: Bool) -> some View {
         VStack(spacing: isPadLayout ? 8 : 10) {
             header
             controlsBar
 
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .top, spacing: isPadLayout ? 12 : 14) {
-                    statsPanel
-                        .frame(width: isPadLayout ? 220 : 250)
+            if isPadPortrait {
+                VStack(spacing: isPadLayout ? 12 : 14) {
+                    phoneCompactHUD
                     boardPanel
                 }
+            } else {
+                ViewThatFits(in: .horizontal) {
+                    HStack(alignment: .top, spacing: isPadLayout ? 12 : 14) {
+                        statsPanel
+                            .frame(width: isPadLayout ? 220 : 250)
+                        boardPanel
+                    }
 
-                VStack(spacing: isPadLayout ? 12 : 14) {
-                    statsPanel
-                    boardPanel
+                    VStack(spacing: isPadLayout ? 12 : 14) {
+                        statsPanel
+                        boardPanel
+                    }
                 }
             }
         }
@@ -963,13 +972,14 @@ struct GameRootView: View {
         let usableWidth = max(0, size.width - 12)
         let usableHeight = max(0, size.height - verticalChrome)
 
-        let cellWidth = max(1, (usableWidth - horizontalSpacing) / CGFloat(dimensions.columns))
-        let cellHeight = max(1, (usableHeight - verticalSpacing) / CGFloat(dimensions.rows))
-        let boardWidth = (CGFloat(dimensions.columns) * cellWidth) + horizontalSpacing
-        let boardHeight = (CGFloat(dimensions.rows) * cellHeight) + verticalSpacing
+        let widthFittedSide = (usableWidth - horizontalSpacing) / CGFloat(dimensions.columns)
+        let heightFittedSide = (usableHeight - verticalSpacing) / CGFloat(dimensions.rows)
+        let cellSide = max(1, min(widthFittedSide, heightFittedSide))
+        let boardWidth = (CGFloat(dimensions.columns) * cellSide) + horizontalSpacing
+        let boardHeight = (CGFloat(dimensions.rows) * cellSide) + verticalSpacing
 
         return BoardMetrics(
-            cellSize: CGSize(width: cellWidth, height: cellHeight),
+            cellSize: CGSize(width: cellSide, height: cellSide),
             boardWidth: boardWidth,
             boardHeight: boardHeight
         )
@@ -983,13 +993,14 @@ struct GameRootView: View {
         let verticalSpacing = CGFloat(max(0, dimensions.rows - 1))
         let availableBoardWidth = max(0, size.width)
         let availableBoardHeight = max(0, size.height)
-        let cellWidth = max(1, (availableBoardWidth - horizontalSpacing) / CGFloat(dimensions.columns))
-        let cellHeight = max(1, (availableBoardHeight - verticalSpacing) / CGFloat(dimensions.rows))
-        let boardWidth = (CGFloat(dimensions.columns) * cellWidth) + horizontalSpacing
-        let boardHeight = (CGFloat(dimensions.rows) * cellHeight) + verticalSpacing
+        let widthFittedSide = (availableBoardWidth - horizontalSpacing) / CGFloat(dimensions.columns)
+        let heightFittedSide = (availableBoardHeight - verticalSpacing) / CGFloat(dimensions.rows)
+        let cellSide = max(1, min(widthFittedSide, heightFittedSide))
+        let boardWidth = (CGFloat(dimensions.columns) * cellSide) + horizontalSpacing
+        let boardHeight = (CGFloat(dimensions.rows) * cellSide) + verticalSpacing
 
         return BoardMetrics(
-            cellSize: CGSize(width: cellWidth, height: cellHeight),
+            cellSize: CGSize(width: cellSide, height: cellSide),
             boardWidth: boardWidth,
             boardHeight: boardHeight
         )
