@@ -39,7 +39,7 @@ extension GameReducer {
                 nextState.revealedTiles.insert(coordinate)
                 nextState.neutralizedBombs.insert(coordinate)
                 nextState.flaggedTiles.remove(coordinate)
-                return GameTransition(state: nextState)
+                return completeIfWon(state: nextState, board: board)
             }
 
             return loseRound(state: nextState, board: board)

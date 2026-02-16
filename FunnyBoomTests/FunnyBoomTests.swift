@@ -111,6 +111,44 @@ struct FunnyBoomTests {
         #expect(nextState.explosionSequence == 0)
     }
 
+    @Test func superheroMineTapWinsImmediatelyWhenAllSafeCellsAlreadyRevealed() {
+        let mine = BoardCoordinate(row: 0, column: 0)
+        let dimensions = BoardDimensions(rows: 2, columns: 2)
+        let board = makeBoard(dimensions: dimensions, mines: [mine])
+        let revealedSafeTiles = Set(dimensions.allCoordinates.filter { $0 != mine })
+
+        let initialState = GameState(
+            settings: .default,
+            board: board,
+            phase: .running,
+            elapsedSeconds: 5,
+            points: 20,
+            bonusPoints: 0,
+            revealedTiles: revealedSafeTiles,
+            flaggedTiles: [],
+            neutralizedBombs: [],
+            specialRollTiles: [],
+            activePower: .superhero(secondsRemaining: 2),
+            funnyBoomOverlay: nil,
+            specialModeNotice: nil,
+            pendingVictory: nil,
+            scores: [],
+            explosionSequence: 0
+        )
+
+        let transition = transition(
+            state: initialState,
+            action: .tapCell(mine),
+            dependencies: .live
+        )
+
+        #expect(transition.state.phase == .won)
+        #expect(transition.state.pendingVictory != nil)
+        #expect(transition.state.revealedTiles.contains(mine))
+        #expect(transition.state.neutralizedBombs.contains(mine))
+        #expect(transition.events.contains(.playSound(.victory)))
+    }
+
     @Test func funnyBoomAwardsPointsOnlyOnClownTiles() {
         let dimensions = BoardDimensions(rows: 5, columns: 5)
         let mines = Set((0..<5).map { BoardCoordinate(row: 2, column: $0) })
