@@ -20,29 +20,17 @@ struct CellButtonView: View {
     let cellSize: CGSize
     let onReveal: () -> Void
     let onFlag: () -> Void
-    @State private var flagPulseScale: CGFloat = 1
 
     var body: some View {
-        CellFaceView(
-            isRevealed: state.isRevealed,
-            isFlagged: state.isFlagged,
-            mineVisibleFromXray: state.mineVisibleFromXray,
-            isMine: state.isMine,
-            adjacentMines: state.adjacentMines,
+        CellButtonContent(
+            state: state,
             scorePulse: scorePulse,
             cellSize: cellSize
         )
-        .scaleEffect(flagPulseScale)
+        .equatable()
         .contentShape(.rect)
         .allowsHitTesting(state.canInteract)
         .gesture(interactionGesture)
-        .onChange(of: state.isFlagged) { _, isFlagged in
-            guard isFlagged else {
-                flagPulseScale = 1
-                return
-            }
-            animateFlagPulse()
-        }
         .accessibilityLabel(accessibilityLabel)
         .accessibilityHint("Quick press reveals. Long press flags or unflags.")
         .accessibilityAddTraits(.isButton)
@@ -90,15 +78,23 @@ struct CellButtonView: View {
                 }
             }
     }
+}
 
-    private func animateFlagPulse() {
-        flagPulseScale = 1
-        withAnimation(.spring(response: 0.16, dampingFraction: 0.56)) {
-            flagPulseScale = 1.18
-        }
-        withAnimation(.spring(response: 0.24, dampingFraction: 0.76).delay(0.10)) {
-            flagPulseScale = 1
-        }
+private struct CellButtonContent: View, Equatable {
+    let state: CellViewState
+    let scorePulse: TileScorePulse?
+    let cellSize: CGSize
+
+    var body: some View {
+        CellFaceView(
+            isRevealed: state.isRevealed,
+            isFlagged: state.isFlagged,
+            mineVisibleFromXray: state.mineVisibleFromXray,
+            isMine: state.isMine,
+            adjacentMines: state.adjacentMines,
+            scorePulse: scorePulse,
+            cellSize: cellSize
+        )
     }
 }
 

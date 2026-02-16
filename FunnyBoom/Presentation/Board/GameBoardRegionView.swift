@@ -74,105 +74,134 @@ struct FunnyBoomOverlayBoardView: View {
         self.compactStyle = compactStyle
     }
 
+    private var boardSpacing: CGFloat {
+        1
+    }
+
+    private var boardWidth: CGFloat {
+        let horizontalSpacing = CGFloat(max(0, dimensions.columns - 1)) * boardSpacing
+        return (CGFloat(dimensions.columns) * cellSize.width) + horizontalSpacing
+    }
+
+    private var boardContainerPadding: CGFloat {
+        allowsScrolling ? 6 : 2
+    }
+
+    private var boardContainerWidth: CGFloat {
+        boardWidth + (boardContainerPadding * 2)
+    }
+
+    private var popupContentWidth: CGFloat {
+        max(boardContainerWidth, compactStyle ? 250 : 330)
+    }
+
     var body: some View {
-        ZStack {
-            RetroPalette.boardWellDark
-                .clipShape(.rect(cornerRadius: 8))
-
-            VStack(spacing: compactStyle ? 4 : 8) {
-                HStack {
-                    VStack(alignment: .leading, spacing: compactStyle ? 1 : 2) {
-                        Text(
-                            overlay.isBriefing
-                                ? String(
-                                    localized: "funny_boom.ready",
-                                    defaultValue: "FUNNY BOOM READY"
-                                )
-                                : String(
-                                    localized: "funny_boom.live",
-                                    defaultValue: "FUNNY BOOM LIVE"
-                                )
-                        )
-                            .retroPixelFont(
-                                size: compactStyle ? 10 : 11,
-                                weight: .black,
-                                color: RetroPalette.cobalt,
-                                tracking: 0.5
+        VStack(spacing: compactStyle ? 4 : 8) {
+            HStack {
+                VStack(alignment: .leading, spacing: compactStyle ? 1 : 2) {
+                    Text(
+                        overlay.isBriefing
+                            ? String(
+                                localized: "funny_boom.ready",
+                                defaultValue: "FUNNY BOOM READY"
                             )
-                        Text(
-                            overlay.isBriefing
-                                ? String(
-                                    localized: "funny_boom.wait_instruction",
-                                    defaultValue: "Wait, then tap clown heads for +10."
-                                )
-                                : String(
-                                    localized: "funny_boom.live_instruction",
-                                    defaultValue: "Tap clown heads now for +10."
-                                )
+                            : String(
+                                localized: "funny_boom.live",
+                                defaultValue: "FUNNY BOOM LIVE"
+                            )
+                    )
+                        .retroPixelFont(
+                            size: compactStyle ? 10 : 11,
+                            weight: .black,
+                            color: RetroPalette.cobalt,
+                            tracking: 0.5
                         )
-                            .font(.system(size: compactStyle ? 10 : 12, weight: .bold, design: .monospaced))
-                            .foregroundStyle(RetroPalette.ink.opacity(0.82))
-                    }
-                    Spacer()
-                    HStack(spacing: compactStyle ? 5 : 6) {
-                        earnedPointsPill
-                        countdownPill
-                    }
+                    Text(
+                        overlay.isBriefing
+                            ? String(
+                                localized: "funny_boom.wait_instruction",
+                                defaultValue: "Countdown running: stress-click cells to reveal clown heads (+10 each)."
+                            )
+                            : String(
+                                localized: "funny_boom.live_instruction",
+                                defaultValue: "Stress-click the board now to reveal clown heads (+10 each)."
+                            )
+                    )
+                        .font(.system(size: compactStyle ? 10 : 12, weight: .bold, design: .monospaced))
+                        .foregroundStyle(RetroPalette.ink.opacity(0.82))
+                        .lineLimit(2)
+                        .multilineTextAlignment(.leading)
                 }
-                .padding(.horizontal, compactStyle ? 8 : 10)
-                .padding(.vertical, compactStyle ? 6 : 8)
-                .retroInsetField(cornerRadius: 6)
-
-                Group {
-                    if allowsScrolling {
-                        ScrollView([.horizontal, .vertical]) {
-                            boardGrid()
-                                .padding(6)
-                        }
-                        .scrollIndicators(.hidden)
-                    } else {
-                        boardGrid()
-                            .padding(2)
-                    }
-                }
-                .overlay {
-                    if overlay.isBriefing {
-                        Color.black.opacity(0.28)
-                            .overlay {
-                                VStack(spacing: compactStyle ? 5 : 7) {
-                                    Text("Get Ready")
-                                        .retroPixelFont(
-                                            size: compactStyle ? 13 : 15,
-                                            weight: .black,
-                                            color: .white,
-                                            tracking: 0.55
-                                        )
-                                    Text(
-                                        String(
-                                            localized: "funny_boom.starts_in",
-                                            defaultValue: "Clown hunt starts in \(overlay.secondsRemaining)s"
-                                        )
-                                    )
-                                        .font(.system(size: compactStyle ? 11 : 12, weight: .bold, design: .monospaced))
-                                        .foregroundStyle(.white.opacity(0.92))
-                                }
-                                .padding(.horizontal, compactStyle ? 12 : 16)
-                                .padding(.vertical, compactStyle ? 8 : 10)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .fill(Color.black.opacity(0.72))
-                                )
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(RetroPalette.chromeEdgeLight.opacity(0.6), lineWidth: 1)
-                                )
-                            }
-                            .allowsHitTesting(false)
-                    }
+                Spacer()
+                HStack(spacing: compactStyle ? 5 : 6) {
+                    earnedPointsPill
+                    countdownPill
                 }
             }
-            .padding(compactStyle ? 6 : 10)
+            .frame(width: popupContentWidth, alignment: .leading)
+            .padding(.horizontal, compactStyle ? 8 : 10)
+            .padding(.vertical, compactStyle ? 6 : 8)
+            .retroInsetField(cornerRadius: 6)
+
+            Group {
+                if allowsScrolling {
+                    ScrollView([.horizontal, .vertical]) {
+                        boardGrid()
+                            .padding(6)
+                    }
+                    .scrollIndicators(.hidden)
+                } else {
+                    boardGrid()
+                        .padding(2)
+                }
+            }
+            .frame(width: boardContainerWidth, alignment: .center)
+            .overlay {
+                if overlay.isBriefing {
+                    Color.black.opacity(0.28)
+                        .overlay {
+                            VStack(spacing: compactStyle ? 5 : 7) {
+                                Text(
+                                    String(
+                                        localized: "funny_boom.get_ready",
+                                        defaultValue: "GET READY"
+                                    )
+                                )
+                                    .retroPixelFont(
+                                        size: compactStyle ? 13 : 15,
+                                        weight: .black,
+                                        color: .white,
+                                        tracking: 0.55
+                                    )
+                                Text(
+                                    String(
+                                        localized: "funny_boom.starts_in",
+                                        defaultValue: "Starts in \(overlay.secondsRemaining)s. Stress-click cells to reveal clown heads."
+                                    )
+                                )
+                                    .font(.system(size: compactStyle ? 11 : 12, weight: .bold, design: .monospaced))
+                                    .foregroundStyle(.white.opacity(0.92))
+                            }
+                            .padding(.horizontal, compactStyle ? 12 : 16)
+                            .padding(.vertical, compactStyle ? 8 : 10)
+                            .background(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(Color.black.opacity(0.72))
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(RetroPalette.chromeEdgeLight.opacity(0.6), lineWidth: 1)
+                            )
+                        }
+                        .allowsHitTesting(false)
+                }
+            }
         }
+        .padding(compactStyle ? 6 : 10)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(RetroPalette.boardWellDark)
+        )
         .padding(compactStyle ? 2 : 6)
         .retroChromePanel(cornerRadius: 8)
         .transition(.opacity.combined(with: .scale))
@@ -189,22 +218,12 @@ struct FunnyBoomOverlayBoardView: View {
                 guard overlay.isInteractive else { return }
                 onTap(coordinate)
             } label: {
-                ZStack {
-                    CellFaceView(
-                        isRevealed: isRevealed,
-                        isFlagged: false,
-                        mineVisibleFromXray: false,
-                        isMine: false,
-                        adjacentMines: 0,
-                        scorePulse: nil,
-                        cellSize: cellSize
-                    )
-
-                    if isRevealedClown {
-                        Text("🤡")
-                            .font(.system(size: min(cellSize.width, cellSize.height) * 0.62))
-                    }
-                }
+                FunnyBoomOverlayCellView(
+                    isRevealed: isRevealed,
+                    isRevealedClown: isRevealedClown,
+                    cellSize: cellSize
+                )
+                .equatable()
             }
             .disabled(!overlay.isInteractive)
             .buttonStyle(.plain)
@@ -269,6 +288,31 @@ struct FunnyBoomOverlayBoardView: View {
     }
 }
 
+private struct FunnyBoomOverlayCellView: View, Equatable {
+    let isRevealed: Bool
+    let isRevealedClown: Bool
+    let cellSize: CGSize
+
+    var body: some View {
+        ZStack {
+            CellFaceView(
+                isRevealed: isRevealed,
+                isFlagged: false,
+                mineVisibleFromXray: false,
+                isMine: false,
+                adjacentMines: 0,
+                scorePulse: nil,
+                cellSize: cellSize
+            )
+
+            if isRevealedClown {
+                Text("🤡")
+                    .font(.system(size: min(cellSize.width, cellSize.height) * 0.62))
+            }
+        }
+    }
+}
+
 struct FunnyBoomFocusOverlayView: View {
     let dimensions: BoardDimensions
     let overlay: FunnyBoomOverlay
@@ -277,17 +321,12 @@ struct FunnyBoomFocusOverlayView: View {
 
     var body: some View {
         GeometryReader { proxy in
-            let panelHorizontalPadding = isPhoneLayout ? 10.0 : 28.0
-            let panelVerticalPadding = isPhoneLayout ? 12.0 : 24.0
-            let contentSize = CGSize(
-                width: max(0, proxy.size.width - (panelHorizontalPadding * 2)),
-                height: max(0, proxy.size.height - (panelVerticalPadding * 2))
-            )
-            let cellSize = focusedCellSize(for: dimensions, in: contentSize)
+            let panelHorizontalPadding = isPhoneLayout ? 10.0 : 24.0
+            let panelVerticalPadding = isPhoneLayout ? 12.0 : 20.0
+            let cellSize = focusedCellSize(for: dimensions, in: proxy.size)
 
             ZStack {
                 Color.black.opacity(0.20)
-                    .background(.ultraThinMaterial)
                     .overlay(
                         LinearGradient(
                             colors: [
@@ -310,7 +349,6 @@ struct FunnyBoomFocusOverlayView: View {
                     allowsScrolling: false,
                     compactStyle: isPhoneLayout
                 )
-                .frame(maxWidth: contentSize.width, maxHeight: contentSize.height)
                 .padding(.horizontal, panelHorizontalPadding)
                 .padding(.vertical, panelVerticalPadding)
             }
@@ -322,16 +360,21 @@ struct FunnyBoomFocusOverlayView: View {
         for dimensions: BoardDimensions,
         in size: CGSize
     ) -> CGSize {
+        let popupHorizontalPadding = isPhoneLayout ? 20.0 : 48.0
+        let popupVerticalPadding = isPhoneLayout ? 24.0 : 40.0
         let horizontalSpacing = CGFloat(max(0, dimensions.columns - 1))
         let verticalSpacing = CGFloat(max(0, dimensions.rows - 1))
+        let chromeHorizontalReserve = isPhoneLayout ? 24.0 : 44.0
+        let chromeVerticalReserve = isPhoneLayout ? 126.0 : 154.0
 
-        // Reserve room for header and chrome so the board can grow as much as possible.
-        let availableWidth = max(0, size.width - (isPhoneLayout ? 42 : 66))
-        let availableHeight = max(0, size.height - (isPhoneLayout ? 158 : 180))
+        let availableWidth = max(0, size.width - popupHorizontalPadding - chromeHorizontalReserve)
+        let availableHeight = max(0, size.height - popupVerticalPadding - chromeVerticalReserve)
 
         let sideFromWidth = (availableWidth - horizontalSpacing) / CGFloat(dimensions.columns)
         let sideFromHeight = (availableHeight - verticalSpacing) / CGFloat(dimensions.rows)
-        let cellSide = max(isPhoneLayout ? 10 : 12, floor(min(sideFromWidth, sideFromHeight)))
+        let fittingSide = floor(min(sideFromWidth, sideFromHeight))
+        let preferredMaxSide = isPhoneLayout ? 24.0 : 34.0
+        let cellSide = max(isPhoneLayout ? 10 : 12, min(preferredMaxSide, fittingSide))
 
         return CGSize(width: cellSide, height: cellSide)
     }

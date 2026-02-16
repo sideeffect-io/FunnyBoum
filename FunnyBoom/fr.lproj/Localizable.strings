@@ -13,7 +13,7 @@
 "special_notice.superhero.title" = "ARMURE EN CHARGE";
 "special_notice.superhero.subtitle" = "L'armure commence bientôt. Les cases bombes sont sans danger pendant %llds.";
 "special_notice.funny_boom.title" = "CHASSE AUX CLOWNS EN PRÉPARATION";
-"special_notice.funny_boom.subtitle" = "Touchez les têtes de clown pour +%lld. La chasse dure %llds.";
+"special_notice.funny_boom.subtitle" = "Mitraillez les clics sur la grille pour révéler les têtes de clown (+%lld chacune). Chasse de %llds.";
 
 "hud.score" = "Score";
 "hud.time" = "Temps";
@@ -53,9 +53,10 @@
 
 "funny_boom.ready" = "FUNNY BOUM PRÊT";
 "funny_boom.live" = "FUNNY BOUM EN COURS";
-"funny_boom.wait_instruction" = "Attendez, puis touchez les têtes de clown pour +10.";
-"funny_boom.live_instruction" = "Touchez les têtes de clown maintenant pour +10.";
-"funny_boom.starts_in" = "La chasse aux clowns commence dans %llds";
+"funny_boom.get_ready" = "PRÉPAREZ-VOUS";
+"funny_boom.wait_instruction" = "Compte à rebours: mitraillez les clics sur les cases pour révéler les têtes de clown (+10 chacune).";
+"funny_boom.live_instruction" = "Mitraillez les clics sur la grille maintenant pour révéler les têtes de clown (+10 chacune).";
+"funny_boom.starts_in" = "Départ dans %llds. Mitraillez les clics pour révéler les têtes de clown.";
 
 "countdown.starts" = "Début";
 "countdown.left" = "Reste";
@@ -74,10 +75,10 @@
 "rules.classic.2" = "Touchez une bombe et vous perdez. Révélez toutes les cases sans bombe pour gagner.";
 "rules.classic.3" = "Quand une case révélée est vide, les zones vides voisines s'ouvrent automatiquement.";
 "rules.special.title" = "Cases spéciales";
-"rules.special.1" = "Certaines cases vides peuvent déclencher +10 points, -10 points, la vision X-Ray, le mode Super-héros ou le mode Funny Boum.";
-"rules.special.2" = "X-Ray révèle les bombes cachées avec une pulsation pendant un court instant.";
-"rules.special.3" = "Le mode Super-héros vous permet de révéler des bombes sans perdre tant qu'il est actif.";
-"rules.special.4" = "Funny Boum démarre maintenant avec un compte à rebours en popup, puis lance une courte chasse aux clowns. Touchez les têtes de clown pour +10 points chacune pendant le chrono.";
+"rules.special.1" = "Quand vous révélez une case vide pour la première fois, un effet spécial peut se déclencher: +10 points, -10 points, X-Ray, Super-héros ou Funny Boum.";
+"rules.special.2" = "X-Ray (8 s) affiche temporairement les bombes cachées sur la grille. Elles restent dangereuses si vous les révélez.";
+"rules.special.3" = "Super-héros (8 s) vous protège: révéler une bombe ne vous fait pas perdre, et la bombe est neutralisée.";
+"rules.special.4" = "Funny Boum démarre après un compte à rebours (5 s), puis lance une chasse de 8 s. Touchez un clown pour +10 points; les autres cases ne donnent rien.";
 "rules.controls.title" = "Commandes";
 "rules.controls.1" = "Appui court: révèle une case.";
 "rules.controls.2" = "Appui long: pose ou retire un drapeau.";

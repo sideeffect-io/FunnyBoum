@@ -7,8 +7,15 @@ struct GameRootView: View {
     @State private var highlightedScoreID: UUID?
     @State private var activeControlPopup: ControlBarPopup?
     @State private var popupAnchorFrames: [ControlBarPopup: CGRect] = [:]
+    @State private var activeFlagPulse: FlagPulse?
 
     private static let controlPopupCoordinateSpace = "controlPopupCoordinateSpace"
+    private static let boardCellSpacing: CGFloat = 1
+
+    private struct FlagPulse: Equatable {
+        let id: UUID
+        let coordinate: BoardCoordinate
+    }
 
     init() {
         let settings = GameRootView.makeInitialSettings()
@@ -25,8 +32,19 @@ struct GameRootView: View {
         let modePreparationNotice = viewModel.state.specialModeNotice?.isActivationCountdown == true
             ? viewModel.state.specialModeNotice
             : nil
-        let isFocusOverlayPresented = viewModel.state.funnyBoomOverlay != nil || modePreparationNotice != nil
+        let isFunnyBoomFocusOverlayPresented = viewModel.state.funnyBoomOverlay != nil
+        let isSpecialModeCountdownPresented = modePreparationNotice != nil
+        let isFocusOverlayPresented = isFunnyBoomFocusOverlayPresented || isSpecialModeCountdownPresented
         let shouldShowControlPopup = isPadLayout && activeOverlay == nil && !isFocusOverlayPresented
+        let mainWindowBlurRadius: CGFloat = {
+            if isFunnyBoomFocusOverlayPresented {
+                return isPhoneLayout ? 5 : 6
+            }
+            if isSpecialModeCountdownPresented {
+                return isPhoneLayout ? 4 : 5
+            }
+            return 0
+        }()
 
         ZStack {
             Group {
@@ -89,8 +107,20 @@ struct GameRootView: View {
                     .transition(.opacity)
                 }
             }
-            .blur(radius: isFocusOverlayPresented ? (isPhoneLayout ? 7 : 8) : 0)
-            .saturation(isFocusOverlayPresented ? 0.86 : 1)
+            .blur(radius: mainWindowBlurRadius)
+            .overlay {
+                if isFunnyBoomFocusOverlayPresented {
+                    Color.black.opacity(isPhoneLayout ? 0.14 : 0.10)
+                        .ignoresSafeArea()
+                        .allowsHitTesting(false)
+                } else if isSpecialModeCountdownPresented {
+                    Rectangle()
+                        .fill(.ultraThinMaterial)
+                        .overlay(Color.black.opacity(isPhoneLayout ? 0.10 : 0.08))
+                        .ignoresSafeArea()
+                        .allowsHitTesting(false)
+                }
+            }
             .allowsHitTesting(!isFocusOverlayPresented)
 
             if let funnyOverlay = viewModel.state.funnyBoomOverlay {
@@ -261,6 +291,9 @@ struct GameRootView: View {
                     highlightedScoreID = nil
                     presentOverlay(.scores)
                 },
+                onForceSpecialMode: { mode in
+                    viewModel.forceSpecialMode(mode)
+                },
                 onClose: {
                     dismissOverlay()
                 }
@@ -355,12 +388,10 @@ struct GameRootView: View {
     private func phoneBoardPanel(in size: CGSize) -> some View {
         let boardViewState = viewModel.boardViewState
         let dimensions = boardViewState.dimensions
-        let funnyOverlay = boardViewState.funnyBoomOverlay
-        let overlayHeightAllowance: CGFloat = funnyOverlay == nil ? 0 : 60
         let metrics = fixedBoardMetrics(
             for: dimensions,
             in: size,
-            verticalChrome: 96 + overlayHeightAllowance
+            verticalChrome: 96
         )
 
         return VStack(alignment: .leading, spacing: 6) {
@@ -376,34 +407,27 @@ struct GameRootView: View {
             }
 
             ZStack {
-                BoardGridView(dimensions: dimensions, cellSize: metrics.cellSize) { coordinate in
-                    CellButtonView(
-                        state: boardViewState.cellState(for: coordinate),
-                        scorePulse: boardViewState.scorePulse(at: coordinate),
-                        cellSize: metrics.cellSize,
-                        onReveal: {
-                            viewModel.tapCell(coordinate)
-                        },
-                        onFlag: {
-                            viewModel.toggleFlag(coordinate)
-                        }
-                    )
-                }
+                if boardViewState.funnyBoomOverlay == nil {
+                    BoardGridView(dimensions: dimensions, cellSize: metrics.cellSize) { coordinate in
+                        CellButtonView(
+                            state: boardViewState.cellState(for: coordinate),
+                            scorePulse: boardViewState.scorePulse(at: coordinate),
+                            cellSize: metrics.cellSize,
+                            onReveal: {
+                                viewModel.tapCell(coordinate)
+                            },
+                            onFlag: {
+                                handleFlagToggle(at: coordinate, boardViewState: boardViewState)
+                            }
+                        )
+                    }
 
-                if let funnyOverlay {
-                    FunnyBoomOverlayBoardView(
-                        dimensions: dimensions,
-                        cellSize: metrics.cellSize,
-                        overlay: funnyOverlay,
-                        onTap: { coordinate in
-                            viewModel.tapFunnyBoomCell(coordinate)
-                        },
-                        allowsScrolling: false,
-                        compactStyle: true
-                    )
+                    flagPulseOverlay(for: metrics)
+                } else {
+                    Color.clear
                 }
             }
-            .frame(width: metrics.boardWidth, height: metrics.boardHeight + overlayHeightAllowance)
+            .frame(width: metrics.boardWidth, height: metrics.boardHeight)
             .clipShape(.rect(cornerRadius: 10))
             .frame(maxWidth: .infinity)
             .retroBoardWell(cornerRadius: 12)
@@ -548,6 +572,30 @@ struct GameRootView: View {
                     highlightedScoreID = nil
                     presentOverlay(.scores)
                 }
+
+#if DEBUG
+                HStack(spacing: 4) {
+                    debugModeControlButton(
+                        title: "XR",
+                        symbol: "eye.fill",
+                        accent: Color(red: 0.05, green: 0.57, blue: 0.88),
+                        mode: .xray
+                    )
+                    debugModeControlButton(
+                        title: "SP",
+                        symbol: "bolt.fill",
+                        accent: Color(red: 0.95, green: 0.53, blue: 0.08),
+                        mode: .superhero
+                    )
+                    debugModeControlButton(
+                        title: "FB",
+                        symbol: "theatermasks.fill",
+                        accent: Color(red: 0.92, green: 0.29, blue: 0.48),
+                        mode: .funnyBoom
+                    )
+                }
+                .padding(.leading, 2)
+#endif
             }
             .padding(.vertical, isPadLayout ? 2 : 4)
         }
@@ -717,49 +765,35 @@ struct GameRootView: View {
             }
 
             GeometryReader { proxy in
-                let funnyOverlay = boardViewState.funnyBoomOverlay
-                let overlayHeightAllowance: CGFloat = funnyOverlay == nil ? 0 : 90
                 let metrics = fillingBoardMetrics(
                     for: dimensions,
-                    in: CGSize(
-                        width: proxy.size.width,
-                        height: max(0, proxy.size.height - overlayHeightAllowance)
-                    )
+                    in: proxy.size
                 )
 
                 ZStack {
-                    BoardGridView(dimensions: dimensions, cellSize: metrics.cellSize) { coordinate in
-                        CellButtonView(
-                            state: boardViewState.cellState(for: coordinate),
-                            scorePulse: boardViewState.scorePulse(at: coordinate),
-                            cellSize: metrics.cellSize,
-                            onReveal: {
-                                viewModel.tapCell(coordinate)
-                            },
-                            onFlag: {
-                                viewModel.toggleFlag(coordinate)
-                            }
-                        )
-                    }
+                    if boardViewState.funnyBoomOverlay == nil {
+                        BoardGridView(dimensions: dimensions, cellSize: metrics.cellSize) { coordinate in
+                            CellButtonView(
+                                state: boardViewState.cellState(for: coordinate),
+                                scorePulse: boardViewState.scorePulse(at: coordinate),
+                                cellSize: metrics.cellSize,
+                                onReveal: {
+                                    viewModel.tapCell(coordinate)
+                                },
+                                onFlag: {
+                                    handleFlagToggle(at: coordinate, boardViewState: boardViewState)
+                                }
+                            )
+                        }
 
-                    if let funnyOverlay {
-                        FunnyBoomOverlayBoardView(
-                            dimensions: dimensions,
-                            cellSize: metrics.cellSize,
-                            overlay: funnyOverlay,
-                            onTap: { coordinate in
-                                viewModel.tapFunnyBoomCell(coordinate)
-                            },
-                            allowsScrolling: false
-                        )
+                        flagPulseOverlay(for: metrics)
+                    } else {
+                        Color.clear
                     }
                 }
-                .frame(width: metrics.boardWidth, height: metrics.boardHeight + overlayHeightAllowance)
+                .frame(width: metrics.boardWidth, height: metrics.boardHeight)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                 .clipShape(.rect(cornerRadius: 10))
-                .transaction { transaction in
-                    transaction.animation = nil
-                }
             }
             .retroBoardWell(cornerRadius: 12)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -853,6 +887,44 @@ struct GameRootView: View {
         .buttonStyle(.plain)
     }
 
+#if DEBUG
+    private func debugModeControlButton(
+        title: String,
+        symbol: String,
+        accent: Color,
+        mode: SpecialModeStyle
+    ) -> some View {
+        Button {
+            viewModel.forceSpecialMode(mode)
+        } label: {
+            Label(title, systemImage: symbol)
+                .retroPixelFont(size: 10, weight: .black, color: RetroPalette.ink, tracking: 0.32)
+                .padding(.horizontal, 7)
+                .padding(.vertical, 5)
+                .background(
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(
+                            LinearGradient(
+                                colors: [accent.opacity(0.30), RetroPalette.fieldFill.opacity(0.9)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 4)
+                        .stroke(RetroPalette.chromeEdgeDark.opacity(0.8), lineWidth: 1)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 3)
+                        .stroke(accent.opacity(0.75), lineWidth: 1)
+                        .padding(1)
+                )
+        }
+        .buttonStyle(.plain)
+    }
+#endif
+
     private func resetBoardButton(compact: Bool) -> some View {
         Button {
             viewModel.restartGame()
@@ -923,4 +995,91 @@ struct GameRootView: View {
         )
     }
 
+    private func handleFlagToggle(at coordinate: BoardCoordinate, boardViewState: GameBoardViewState) {
+        if !boardViewState.cellState(for: coordinate).isFlagged {
+            activeFlagPulse = FlagPulse(id: UUID(), coordinate: coordinate)
+        }
+        viewModel.toggleFlag(coordinate)
+    }
+
+    @ViewBuilder
+    private func flagPulseOverlay(for metrics: BoardMetrics) -> some View {
+        if let activeFlagPulse {
+            let center = flagPulseCenter(
+                for: activeFlagPulse.coordinate,
+                cellSize: metrics.cellSize
+            )
+
+            FlagPlacementRadialPulse(cellSize: metrics.cellSize) {
+                if self.activeFlagPulse?.id == activeFlagPulse.id {
+                    self.activeFlagPulse = nil
+                }
+            }
+            .id(activeFlagPulse.id)
+            .position(x: center.x, y: center.y)
+            .zIndex(40)
+            .allowsHitTesting(false)
+        }
+    }
+
+    private func flagPulseCenter(
+        for coordinate: BoardCoordinate,
+        cellSize: CGSize
+    ) -> CGPoint {
+        CGPoint(
+            x: CGFloat(coordinate.column) * (cellSize.width + Self.boardCellSpacing) + (cellSize.width / 2),
+            y: CGFloat(coordinate.row) * (cellSize.height + Self.boardCellSpacing) + (cellSize.height / 2)
+        )
+    }
+
+}
+
+private struct FlagPlacementRadialPulse: View {
+    let cellSize: CGSize
+    let onComplete: () -> Void
+    @State private var progress: CGFloat = 0
+    @State private var didScheduleCompletion = false
+
+    private var baseSize: CGFloat {
+        max(18, min(cellSize.width, cellSize.height))
+    }
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(
+                    RadialGradient(
+                        colors: [
+                            Color.orange.opacity(0.70 * (1 - Double(progress))),
+                            Color.orange.opacity(0.04)
+                        ],
+                        center: .center,
+                        startRadius: 0,
+                        endRadius: baseSize * 1.6
+                    )
+                )
+                .frame(width: baseSize * 2.8, height: baseSize * 2.8)
+                .scaleEffect(0.62 + (progress * 1.23))
+
+            Circle()
+                .stroke(
+                    Color.orange.opacity(0.98 * (1 - Double(progress))),
+                    lineWidth: max(CGFloat(2.4), baseSize * 0.16 * (1 - progress))
+                )
+                .frame(width: baseSize, height: baseSize)
+                .scaleEffect(1 + (progress * 1.78))
+        }
+        .onAppear {
+            guard !didScheduleCompletion else { return }
+            didScheduleCompletion = true
+
+            withAnimation(.easeOut(duration: 0.44)) {
+                progress = 1
+            }
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.46) {
+                onComplete()
+            }
+        }
+    }
 }

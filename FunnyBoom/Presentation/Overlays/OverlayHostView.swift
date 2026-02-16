@@ -67,7 +67,7 @@ struct SpecialModeCountdownFocusOverlayView: View {
 
     var body: some View {
         ZStack {
-            Color.black.opacity(0.16)
+            Color.clear
                 .ignoresSafeArea()
                 .allowsHitTesting(false)
 
@@ -390,6 +390,7 @@ struct PhoneMenuSheetView: View {
     let onSetDifficulty: (GameDifficulty) -> Void
     let onSetBoardSize: (BoardSizePreset) -> Void
     let onShowScores: () -> Void
+    let onForceSpecialMode: (SpecialModeStyle) -> Void
     let onClose: () -> Void
 
     var body: some View {
@@ -455,6 +456,43 @@ struct PhoneMenuSheetView: View {
                             )
                         }
                     }
+
+#if DEBUG
+                    overlaySection(title: String(localized: "menu.debug.title", defaultValue: "Debug")) {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(
+                                String(
+                                    localized: "menu.debug.subtitle",
+                                    defaultValue: "Force special modes instantly"
+                                )
+                            )
+                            .font(.system(size: 10, weight: .bold, design: .monospaced))
+                            .foregroundStyle(RetroPalette.ink.opacity(0.72))
+                            .padding(.horizontal, 2)
+
+                            HStack(spacing: 6) {
+                                debugModeButton(
+                                    title: "X-RAY",
+                                    symbol: "eye.fill",
+                                    accent: Color(red: 0.05, green: 0.57, blue: 0.88),
+                                    mode: .xray
+                                )
+                                debugModeButton(
+                                    title: "SUPER",
+                                    symbol: "bolt.fill",
+                                    accent: Color(red: 0.95, green: 0.53, blue: 0.08),
+                                    mode: .superhero
+                                )
+                                debugModeButton(
+                                    title: "BOOM",
+                                    symbol: "theatermasks.fill",
+                                    accent: Color(red: 0.92, green: 0.29, blue: 0.48),
+                                    mode: .funnyBoom
+                                )
+                            }
+                        }
+                    }
+#endif
                 }
             }
             .frame(maxHeight: 470)
@@ -515,6 +553,52 @@ struct PhoneMenuSheetView: View {
         }
         .buttonStyle(.plain)
     }
+
+#if DEBUG
+    private func debugModeButton(
+        title: String,
+        symbol: String,
+        accent: Color,
+        mode: SpecialModeStyle
+    ) -> some View {
+        Button {
+            onForceSpecialMode(mode)
+            onClose()
+        } label: {
+            Label(title, systemImage: symbol)
+                .retroPixelFont(size: 9, weight: .black, color: RetroPalette.ink, tracking: 0.38)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 7)
+                .background(
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(
+                            LinearGradient(
+                                colors: [accent.opacity(0.30), RetroPalette.fieldFill.opacity(0.88)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 6)
+                        .stroke(RetroPalette.chromeEdgeDark.opacity(0.75), lineWidth: 1.1)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 5)
+                        .stroke(accent.opacity(0.72), lineWidth: 1.0)
+                        .padding(1)
+                )
+                .shadow(color: accent.opacity(0.24), radius: 5, x: 0, y: 2)
+        }
+        .buttonStyle(.plain)
+        .accessibilityHint(
+            String(
+                localized: "menu.debug.force_mode.hint",
+                defaultValue: "Debug: force this special mode immediately."
+            )
+        )
+    }
+#endif
 }
 
 struct RulesSheetView: View {
@@ -554,19 +638,19 @@ struct RulesSheetView: View {
                         items: [
                             String(
                                 localized: "rules.special.1",
-                                defaultValue: "Some empty tiles can trigger +10 points, -10 points, X-Ray vision, Superhero mode, or Funny Boum mode."
+                                defaultValue: "When you reveal an empty tile for the first time, a special effect can trigger: +10 points, -10 points, X-Ray, Superhero, or Funny Boum."
                             ),
                             String(
                                 localized: "rules.special.2",
-                                defaultValue: "X-Ray reveals hidden bombs with a pulse for a short time."
+                                defaultValue: "X-Ray (8s) temporarily shows hidden bombs on the board. They are still lethal if you reveal them."
                             ),
                             String(
                                 localized: "rules.special.3",
-                                defaultValue: "Superhero mode lets you reveal bombs without losing while it is active."
+                                defaultValue: "Superhero (8s) protects you: revealing a bomb will not lose the run, and that bomb is neutralized."
                             ),
                             String(
                                 localized: "rules.special.4",
-                                defaultValue: "Funny Boum now starts with a special-mode popup countdown, then launches a short clown hunt. Tap clown faces for +10 points each during the timer."
+                                defaultValue: "Funny Boum starts after a 5s countdown, then runs an 8s clown hunt. Tap a clown for +10 points; other tiles give no points."
                             )
                         ]
                     )

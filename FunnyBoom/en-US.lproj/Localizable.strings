@@ -13,7 +13,7 @@
 "special_notice.superhero.title" = "SUIT POWERING UP";
 "special_notice.superhero.subtitle" = "Armor starts soon. Bomb tiles are safe for %llds.";
 "special_notice.funny_boom.title" = "CLOWN HUNT LOADING";
-"special_notice.funny_boom.subtitle" = "Tap clown faces for +%lld. Hunt lasts %llds.";
+"special_notice.funny_boom.subtitle" = "Stress-click the board to reveal clown heads (+%lld each). Hunt lasts %llds.";
 
 "hud.score" = "Score";
 "hud.time" = "Time";
@@ -53,9 +53,10 @@
 
 "funny_boom.ready" = "FUNNY BOUM READY";
 "funny_boom.live" = "FUNNY BOUM LIVE";
-"funny_boom.wait_instruction" = "Wait, then tap clown heads for +10.";
-"funny_boom.live_instruction" = "Tap clown heads now for +10.";
-"funny_boom.starts_in" = "Clown hunt starts in %llds";
+"funny_boom.get_ready" = "GET READY";
+"funny_boom.wait_instruction" = "Countdown running: stress-click cells to reveal clown heads (+10 each).";
+"funny_boom.live_instruction" = "Stress-click the board now to reveal clown heads (+10 each).";
+"funny_boom.starts_in" = "Starts in %llds. Stress-click cells to reveal clown heads.";
 
 "countdown.starts" = "Starts";
 "countdown.left" = "Left";
@@ -74,10 +75,10 @@
 "rules.classic.2" = "Tap a bomb and you lose. Reveal every non-bomb tile to win.";
 "rules.classic.3" = "When a revealed tile is empty, neighboring empty areas expand automatically.";
 "rules.special.title" = "Special Squares";
-"rules.special.1" = "Some empty tiles can trigger +10 points, -10 points, X-Ray vision, Superhero mode, or Funny Boum mode.";
-"rules.special.2" = "X-Ray reveals hidden bombs with a pulse for a short time.";
-"rules.special.3" = "Superhero mode lets you reveal bombs without losing while it is active.";
-"rules.special.4" = "Funny Boum now starts with a special-mode popup countdown, then launches a short clown hunt. Tap clown faces for +10 points each during the timer.";
+"rules.special.1" = "When you reveal an empty tile for the first time, a special effect can trigger: +10 points, -10 points, X-Ray, Superhero, or Funny Boum.";
+"rules.special.2" = "X-Ray (8s) temporarily shows hidden bombs on the board. They are still lethal if you reveal them.";
+"rules.special.3" = "Superhero (8s) protects you: revealing a bomb will not lose the run, and that bomb is neutralized.";
+"rules.special.4" = "Funny Boum starts after a 5s countdown, then runs an 8s clown hunt. Tap a clown for +10 points; other tiles give no points.";
 "rules.controls.title" = "Controls";
 "rules.controls.1" = "Quick press reveals a tile.";
 "rules.controls.2" = "Long press flags or unflags a tile.";

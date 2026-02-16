@@ -166,7 +166,7 @@ struct GameState: Equatable, Sendable {
     var activePower: ActivePower?
     var funnyBoomOverlay: FunnyBoomOverlay?
     var specialModeNotice: SpecialModeNotice?
-    var tileScorePulses: [TileScorePulse]
+    var tileScorePulses: [BoardCoordinate: TileScorePulse]
     var pendingVictory: PendingVictory?
     var scores: [ScoreEntry]
     var explosionSequence: Int
@@ -185,7 +185,7 @@ struct GameState: Equatable, Sendable {
         activePower: ActivePower? = nil,
         funnyBoomOverlay: FunnyBoomOverlay? = nil,
         specialModeNotice: SpecialModeNotice? = nil,
-        tileScorePulses: [TileScorePulse] = [],
+        tileScorePulses: [BoardCoordinate: TileScorePulse] = [:],
         pendingVictory: PendingVictory? = nil,
         scores: [ScoreEntry] = [],
         explosionSequence: Int = 0
@@ -257,6 +257,7 @@ enum GameAction: Sendable {
     case startNewRound
     case setDifficulty(GameDifficulty)
     case setBoardSize(BoardSizePreset)
+    case forceSpecialMode(SpecialModeStyle)
     case tapCell(BoardCoordinate)
     case toggleFlag(BoardCoordinate)
     case tapFunnyBoomCell(BoardCoordinate)

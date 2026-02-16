@@ -78,8 +78,11 @@ extension GameReducer {
 
         var nextState = state
 
-        if overlay.clownTiles.contains(coordinate), !overlay.revealedClowns.contains(coordinate) {
-            overlay.revealedClowns.insert(coordinate)
+        if overlay.clownTiles.contains(coordinate) {
+            let insertion = overlay.revealedClowns.insert(coordinate)
+            guard insertion.inserted else {
+                return state
+            }
             nextState.points += ScoreRules.eventPoints
             nextState.bonusPoints += ScoreRules.eventPoints
             enqueueTileScorePulse(
@@ -87,8 +90,11 @@ extension GameReducer {
                 coordinate: coordinate,
                 pointsDelta: ScoreRules.eventPoints
             )
-        } else if !overlay.clownTiles.contains(coordinate) {
-            overlay.revealedMisses.insert(coordinate)
+        } else {
+            let insertion = overlay.revealedMisses.insert(coordinate)
+            guard insertion.inserted else {
+                return state
+            }
         }
 
         nextState.funnyBoomOverlay = overlay
@@ -174,7 +180,7 @@ extension GameReducer {
             nextState.activePower = nil
             nextState.funnyBoomOverlay = nil
             nextState.specialModeNotice = nil
-            nextState.tileScorePulses = []
+            nextState.tileScorePulses = [:]
 
             let totalScore = ScoreRules.finalScore(
                 points: nextState.points,
@@ -201,7 +207,7 @@ extension GameReducer {
         nextState.activePower = nil
         nextState.funnyBoomOverlay = nil
         nextState.specialModeNotice = nil
-        nextState.tileScorePulses = []
+        nextState.tileScorePulses = [:]
         nextState.pendingVictory = nil
         nextState.revealedTiles.formUnion(board.mines)
         nextState.explosionSequence += 1

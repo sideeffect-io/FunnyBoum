@@ -1,6 +1,53 @@
 import Foundation
 
 extension GameReducer {
+    static func forceSpecialMode(
+        state: GameState,
+        style: SpecialModeStyle,
+        dependencies: GameDependencies
+    ) -> GameState {
+        guard state.phase == .idle || state.phase == .running else {
+            return state
+        }
+
+        var nextState = state
+        nextState.activePower = nil
+        nextState.funnyBoomOverlay = nil
+        nextState.specialModeNotice = nil
+        nextState = ensureBoardForForcedSpecialMode(
+            state: nextState,
+            dependencies: dependencies
+        )
+        nextState.specialModeNotice = makeModeNotice(for: style)
+        return nextState
+    }
+
+    static func ensureBoardForForcedSpecialMode(
+        state: GameState,
+        dependencies: GameDependencies
+    ) -> GameState {
+        var nextState = state
+
+        if nextState.board == nil {
+            let dimensions = nextState.settings.boardSize.dimensions
+            let safeCoordinate = BoardCoordinate(
+                row: dimensions.rows / 2,
+                column: dimensions.columns / 2
+            )
+            nextState.board = GameBoard.generate(
+                settings: nextState.settings,
+                safeCoordinate: safeCoordinate,
+                randomInt: dependencies.randomInt
+            )
+        }
+
+        if nextState.phase == .idle {
+            nextState.phase = .running
+        }
+
+        return nextState
+    }
+
     static func maybeApplySpecialEffect(
         state: inout GameState,
         board: GameBoard,
@@ -46,7 +93,22 @@ extension GameReducer {
             enqueueTileScorePulse(state: &state, coordinate: tappedCoordinate, pointsDelta: -ScoreRules.eventPoints)
 
         case .xray:
-            state.specialModeNotice = makeModeNotice(
+            state.specialModeNotice = makeModeNotice(for: .xray)
+
+        case .superhero:
+            state.specialModeNotice = makeModeNotice(for: .superhero)
+
+        case .funnyBoom:
+            state.specialModeNotice = makeModeNotice(for: .funnyBoom)
+        }
+
+        return events
+    }
+
+    static func makeModeNotice(for style: SpecialModeStyle) -> SpecialModeNotice {
+        switch style {
+        case .xray:
+            return makeModeNotice(
                 style: .xray,
                 title: String(
                     localized: "special_notice.xray.title",
@@ -61,7 +123,7 @@ extension GameReducer {
             )
 
         case .superhero:
-            state.specialModeNotice = makeModeNotice(
+            return makeModeNotice(
                 style: .superhero,
                 title: String(
                     localized: "special_notice.superhero.title",
@@ -76,7 +138,7 @@ extension GameReducer {
             )
 
         case .funnyBoom:
-            state.specialModeNotice = makeModeNotice(
+            return makeModeNotice(
                 style: .funnyBoom,
                 title: String(
                     localized: "special_notice.funny_boom.title",
@@ -84,14 +146,12 @@ extension GameReducer {
                 ),
                 subtitle: String(
                     localized: "special_notice.funny_boom.subtitle",
-                    defaultValue: "Tap clown faces for +\(ScoreRules.eventPoints). Hunt lasts \(ScoreRules.funnyBoomPlayDuration)s."
+                    defaultValue: "Stress-click the board to reveal clown heads (+\(ScoreRules.eventPoints) each). Hunt lasts \(ScoreRules.funnyBoomPlayDuration)s."
                 ),
                 symbol: "theatermasks.fill",
                 duration: ScoreRules.specialModePreparationDuration
             )
         }
-
-        return events
     }
 
     static func makeModeNotice(
@@ -184,14 +244,11 @@ extension GameReducer {
         coordinate: BoardCoordinate,
         pointsDelta: Int
     ) {
-        state.tileScorePulses.removeAll { $0.coordinate == coordinate }
-        state.tileScorePulses.append(
-            TileScorePulse(
-                id: UUID(),
-                coordinate: coordinate,
-                pointsDelta: pointsDelta,
-                secondsRemaining: ScoreRules.tileScorePulseDuration
-            )
+        state.tileScorePulses[coordinate] = TileScorePulse(
+            id: UUID(),
+            coordinate: coordinate,
+            pointsDelta: pointsDelta,
+            secondsRemaining: ScoreRules.tileScorePulseDuration
         )
     }
 }

@@ -188,8 +188,8 @@ struct FunnyBoomTests {
 
         #expect(afterClownTap.points == pointsBefore + ScoreRules.eventPoints)
         #expect(afterClownTap.tileScorePulses.count == 1)
-        #expect(afterClownTap.tileScorePulses.first?.coordinate == clownTile)
-        #expect(afterClownTap.tileScorePulses.first?.pointsDelta == ScoreRules.eventPoints)
+        #expect(afterClownTap.tileScorePulses[clownTile]?.coordinate == clownTile)
+        #expect(afterClownTap.tileScorePulses[clownTile]?.pointsDelta == ScoreRules.eventPoints)
 
         let nonClownTile = dimensions.allCoordinates.first { !(afterClownTap.funnyBoomOverlay?.clownTiles.contains($0) ?? false) }
         #expect(nonClownTile != nil)
@@ -427,6 +427,62 @@ struct FunnyBoomTests {
         #expect(nextState.funnyBoomOverlay?.secondsRemaining == ScoreRules.funnyBoomPlayDuration)
     }
 
+    @Test func forceSpecialModeStartsRoundAndSchedulesXrayCountdown() {
+        let environment = GameDependencies(
+            randomInt: { _ in 0 },
+            randomUnit: { 1 },
+            now: { Date(timeIntervalSince1970: 0) }
+        )
+
+        let initialState = GameState(settings: .default, phase: .idle)
+
+        let nextState = reduce(
+            state: initialState,
+            action: .forceSpecialMode(.xray),
+            dependencies: environment
+        )
+
+        #expect(nextState.phase == .running)
+        #expect(nextState.board != nil)
+        #expect(nextState.activePower == nil)
+        #expect(nextState.specialModeNotice?.style == .xray)
+        #expect(nextState.specialModeNotice?.secondsRemaining == ScoreRules.specialModePreparationDuration)
+        #expect(nextState.funnyBoomOverlay == nil)
+    }
+
+    @Test func forceSpecialModeSchedulesFunnyBoomCountdown() {
+        let board = makeBoard(
+            dimensions: BoardDimensions(rows: 4, columns: 4),
+            mines: [BoardCoordinate(row: 3, column: 3)]
+        )
+        let state = GameState(
+            settings: .default,
+            board: board,
+            phase: .running,
+            activePower: .superhero(secondsRemaining: 3)
+        )
+
+        let preparedState = reduce(
+            state: state,
+            action: .forceSpecialMode(.funnyBoom),
+            dependencies: .live
+        )
+
+        #expect(preparedState.activePower == nil)
+        #expect(preparedState.specialModeNotice?.style == .funnyBoom)
+        #expect(preparedState.funnyBoomOverlay == nil)
+
+        let activatedState = reduce(
+            state: preparedState,
+            action: .skipSpecialModeCountdown,
+            dependencies: .live
+        )
+
+        #expect(activatedState.specialModeNotice == nil)
+        #expect(activatedState.funnyBoomOverlay?.isInteractive == true)
+        #expect(activatedState.funnyBoomOverlay?.secondsRemaining == ScoreRules.funnyBoomPlayDuration)
+    }
+
     @Test func bonusEffectShowsTilePulseAndPulseExpires() {
         let dimensions = BoardDimensions(rows: 5, columns: 5)
         let mines = Set((0..<5).map { BoardCoordinate(row: 2, column: $0) })
@@ -466,8 +522,8 @@ struct FunnyBoomTests {
         )
 
         #expect(withPulse.tileScorePulses.count == 1)
-        #expect(withPulse.tileScorePulses.first?.coordinate == tappedCoordinate)
-        #expect(withPulse.tileScorePulses.first?.pointsDelta == ScoreRules.eventPoints)
+        #expect(withPulse.tileScorePulses[tappedCoordinate]?.coordinate == tappedCoordinate)
+        #expect(withPulse.tileScorePulses[tappedCoordinate]?.pointsDelta == ScoreRules.eventPoints)
         #expect(withPulse.specialModeNotice == nil)
 
         let afterOneTick = reduce(

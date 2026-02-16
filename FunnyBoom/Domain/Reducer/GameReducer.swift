@@ -21,6 +21,13 @@ enum GameReducer {
             nextState.settings.boardSize = boardSize
             nextState = resetRound(from: nextState)
 
+        case let .forceSpecialMode(style):
+            nextState = forceSpecialMode(
+                state: nextState,
+                style: style,
+                dependencies: dependencies
+            )
+
         case let .tapCell(coordinate):
             let transition = tapCell(
                 state: nextState,
@@ -71,7 +78,7 @@ enum GameReducer {
             activePower: nil,
             funnyBoomOverlay: nil,
             specialModeNotice: nil,
-            tileScorePulses: [],
+            tileScorePulses: [:],
             pendingVictory: nil,
             scores: state.scores,
             explosionSequence: state.explosionSequence

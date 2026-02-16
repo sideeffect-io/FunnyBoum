@@ -91,9 +91,18 @@ final class SoundEffectPlayer {
         switch effect {
         case .flagPlaced:
 #if canImport(UIKit)
-            let feedback = UIImpactFeedbackGenerator(style: .light)
+            #if os(iOS)
+            let style: UIImpactFeedbackGenerator.FeedbackStyle =
+                UIDevice.current.userInterfaceIdiom == .phone ? .heavy : .light
+            let intensity: CGFloat = UIDevice.current.userInterfaceIdiom == .phone ? 1.0 : 0.75
+            #else
+            let style: UIImpactFeedbackGenerator.FeedbackStyle = .light
+            let intensity: CGFloat = 0.75
+            #endif
+
+            let feedback = UIImpactFeedbackGenerator(style: style)
             feedback.prepare()
-            feedback.impactOccurred(intensity: 0.75)
+            feedback.impactOccurred(intensity: intensity)
 #endif
             return
         case .explosion, .specialSquareDiscovered, .victory, .countdownBeep:

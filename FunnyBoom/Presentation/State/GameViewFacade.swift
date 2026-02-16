@@ -9,10 +9,30 @@ struct GameBoardViewState: Equatable {
     let revealedTiles: Set<BoardCoordinate>
     let flaggedTiles: Set<BoardCoordinate>
     let activePower: ActivePower?
-    let tileScorePulses: [TileScorePulse]
+    let tileScorePulsesByCoordinate: [BoardCoordinate: TileScorePulse]
+
+    init(
+        board: GameBoard?,
+        dimensions: BoardDimensions,
+        canInteractWithBoard: Bool,
+        funnyBoomOverlay: FunnyBoomOverlay?,
+        revealedTiles: Set<BoardCoordinate>,
+        flaggedTiles: Set<BoardCoordinate>,
+        activePower: ActivePower?,
+        tileScorePulsesByCoordinate: [BoardCoordinate: TileScorePulse]
+    ) {
+        self.board = board
+        self.dimensions = dimensions
+        self.canInteractWithBoard = canInteractWithBoard
+        self.funnyBoomOverlay = funnyBoomOverlay
+        self.revealedTiles = revealedTiles
+        self.flaggedTiles = flaggedTiles
+        self.activePower = activePower
+        self.tileScorePulsesByCoordinate = tileScorePulsesByCoordinate
+    }
 
     func scorePulse(at coordinate: BoardCoordinate) -> TileScorePulse? {
-        tileScorePulses.first { $0.coordinate == coordinate }
+        tileScorePulsesByCoordinate[coordinate]
     }
 
     func cellState(for coordinate: BoardCoordinate) -> CellViewState {
@@ -59,7 +79,7 @@ final class GameViewFacade {
             revealedTiles: state.revealedTiles,
             flaggedTiles: state.flaggedTiles,
             activePower: state.activePower,
-            tileScorePulses: state.tileScorePulses
+            tileScorePulsesByCoordinate: state.tileScorePulses
         )
     }
 
@@ -73,6 +93,10 @@ final class GameViewFacade {
 
     func setBoardSize(_ boardSize: BoardSizePreset) {
         store.send(.setBoardSize(boardSize))
+    }
+
+    func forceSpecialMode(_ mode: SpecialModeStyle) {
+        store.send(.forceSpecialMode(mode))
     }
 
     func tapCell(_ coordinate: BoardCoordinate) {

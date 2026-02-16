@@ -76,10 +76,19 @@ extension GameReducer {
             }
         }
 
-        nextState.tileScorePulses = nextState.tileScorePulses.compactMap { pulse in
-            var nextPulse = pulse
-            nextPulse.secondsRemaining -= 1
-            return nextPulse.secondsRemaining > 0 ? nextPulse : nil
+        if !nextState.tileScorePulses.isEmpty {
+            var refreshedPulses: [BoardCoordinate: TileScorePulse] = [:]
+            refreshedPulses.reserveCapacity(nextState.tileScorePulses.count)
+
+            for (coordinate, pulse) in nextState.tileScorePulses {
+                var nextPulse = pulse
+                nextPulse.secondsRemaining -= 1
+                if nextPulse.secondsRemaining > 0 {
+                    refreshedPulses[coordinate] = nextPulse
+                }
+            }
+
+            nextState.tileScorePulses = refreshedPulses
         }
 
         if shouldPlayCountdownBeep {

@@ -237,6 +237,10 @@ final class GameStore {
     }
 
     private func applyTransition(_ transition: GameTransition) {
+        if transition.state == state && transition.events.isEmpty {
+            return
+        }
+
         let previousPhase = state.phase
         state = transition.state
 
