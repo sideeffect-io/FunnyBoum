@@ -3,6 +3,7 @@ import Foundation
 @MainActor
 struct GameEffectRunner {
     let soundClient: SoundClient
+    let analyticsClient: AnalyticsClient
 
     func run(
         _ events: [GameDomainEvent],
@@ -14,6 +15,8 @@ struct GameEffectRunner {
                 soundClient.play(effect)
             case .scheduleLossCardReveal:
                 onScheduleLossCardReveal()
+            case let .trackBoardStarted(payload):
+                analyticsClient.trackBoardStarted(payload)
             }
         }
     }

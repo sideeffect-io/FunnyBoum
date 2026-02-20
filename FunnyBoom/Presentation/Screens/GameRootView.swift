@@ -17,12 +17,21 @@ struct GameRootView: View {
         let coordinate: BoardCoordinate
     }
 
-    init() {
+    init(
+        dependencies: GameDependencies = .live,
+        scoresClient: ScoresClient = .live,
+        soundClient: SoundClient? = nil,
+        analyticsClient: AnalyticsClient = .noop
+    ) {
         let settings = GameRootView.makeInitialSettings()
         _viewModel = State(
             wrappedValue: GameViewFacade(
                 store: GameStore(
-                    state: GameState(settings: settings)
+                    state: GameState(settings: settings),
+                    dependencies: dependencies,
+                    scoresClient: scoresClient,
+                    soundClient: soundClient,
+                    analyticsClient: analyticsClient
                 )
             )
         )

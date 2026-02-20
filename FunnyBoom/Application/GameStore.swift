@@ -49,12 +49,16 @@ final class GameStore {
         state: GameState = GameState(),
         dependencies: GameDependencies = .live,
         scoresClient: ScoresClient = .live,
-        soundClient: SoundClient? = nil
+        soundClient: SoundClient? = nil,
+        analyticsClient: AnalyticsClient = .noop
     ) {
         self.state = state
         self.dependencies = dependencies
         self.scoresClient = scoresClient
-        self.effectRunner = GameEffectRunner(soundClient: soundClient ?? SoundClient.live())
+        self.effectRunner = GameEffectRunner(
+            soundClient: soundClient ?? SoundClient.live(),
+            analyticsClient: analyticsClient
+        )
         self.worker = Worker(dependencies: dependencies)
         isLossCardVisible = false
 

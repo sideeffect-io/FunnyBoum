@@ -38,6 +38,21 @@ enum GameDifficulty: String, CaseIterable, Identifiable, Codable, Sendable {
 
     var id: String { rawValue }
 
+    var analyticsLabel: String {
+        switch self {
+        case .debutant:
+            "beginner"
+        case .amateur:
+            "amateur"
+        case .expert:
+            "expert"
+        case .veteran:
+            "veteran"
+        case .migraine:
+            "migraine"
+        }
+    }
+
     var title: String {
         switch self {
         case .debutant:

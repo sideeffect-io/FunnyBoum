@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		1A5E23BB2F3D0349006D3471 /* TelemetryDeck in Frameworks */ = {isa = PBXBuildFile; productRef = 1A5E23BD2F3D0349006D3471 /* TelemetryDeck */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		1A5E239F2F3D0349006D3471 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A5E23BB2F3D0349006D3471 /* TelemetryDeck in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +117,7 @@
 			);
 			name = FunnyBoom;
 			packageProductDependencies = (
+				1A5E23BD2F3D0349006D3471 /* TelemetryDeck */,
 			);
 			productName = FunnyBoom;
 			productReference = 1A5E23912F3D0347006D3471 /* FunnyBoom.app */;
@@ -197,6 +203,9 @@
 			);
 			mainGroup = 1A5E23882F3D0347006D3471;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				1A5E23BC2F3D0349006D3471 /* XCRemoteSwiftPackageReference "SwiftSDK" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 1A5E23922F3D0347006D3471 /* Products */;
 			projectDirPath = "";
@@ -633,6 +642,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		1A5E23BC2F3D0349006D3471 /* XCRemoteSwiftPackageReference "SwiftSDK" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/TelemetryDeck/SwiftSDK";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		1A5E23BD2F3D0349006D3471 /* TelemetryDeck */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1A5E23BC2F3D0349006D3471 /* XCRemoteSwiftPackageReference "SwiftSDK" */;
+			productName = TelemetryDeck;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 1A5E23892F3D0347006D3471 /* Project object */;
 }

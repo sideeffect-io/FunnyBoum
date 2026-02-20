@@ -294,9 +294,19 @@ enum GameSoundEffect: Equatable, Sendable {
     case flagPlaced
 }
 
+struct BoardStartedAnalytics: Equatable, Sendable {
+    let difficulty: GameDifficulty
+    let boardSize: BoardDimensions
+
+    var boardSizeLabel: String {
+        "\(boardSize.columns)x\(boardSize.rows)"
+    }
+}
+
 enum GameDomainEvent: Equatable, Sendable {
     case playSound(GameSoundEffect)
     case scheduleLossCardReveal
+    case trackBoardStarted(BoardStartedAnalytics)
 }
 
 struct GameTransition: Sendable {

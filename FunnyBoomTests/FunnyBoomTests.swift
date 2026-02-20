@@ -681,6 +681,86 @@ struct FunnyBoomTests {
         #expect(transition.events.contains(.playSound(.specialSquareDiscovered)))
     }
 
+    @Test func firstRevealEmitsBoardStartedAnalyticsEvent() {
+        let settings = GameSettings(
+            difficulty: .expert,
+            boardSize: .rectangular20x15
+        )
+        let initialState = GameState(settings: settings)
+        let dependencies = GameDependencies(
+            randomInt: { _ in 0 },
+            randomUnit: { 1 },
+            now: Date.init
+        )
+
+        let transition = transition(
+            state: initialState,
+            action: .tapCell(BoardCoordinate(row: 0, column: 0)),
+            dependencies: dependencies
+        )
+
+        #expect(
+            transition.events.contains(
+                .trackBoardStarted(
+                    BoardStartedAnalytics(
+                        difficulty: settings.difficulty,
+                        boardSize: settings.boardSize.dimensions
+                    )
+                )
+            )
+        )
+    }
+
+    @Test func laterRevealsDoNotEmitBoardStartedAnalyticsEvent() {
+        let mine = BoardCoordinate(row: 1, column: 1)
+        let board = makeBoard(
+            dimensions: BoardDimensions(rows: 2, columns: 2),
+            mines: [mine]
+        )
+        let initialState = GameState(
+            settings: .default,
+            board: board,
+            phase: .running,
+            revealedTiles: [BoardCoordinate(row: 0, column: 0)]
+        )
+
+        let transition = transition(
+            state: initialState,
+            action: .tapCell(BoardCoordinate(row: 0, column: 1)),
+            dependencies: .live
+        )
+
+        #expect(
+            transition.events.contains { event in
+                if case .trackBoardStarted = event {
+                    return true
+                }
+                return false
+            } == false
+        )
+    }
+
+    @MainActor
+    @Test func effectRunnerRoutesBoardStartedAnalyticsToInjectedClosure() {
+        var recordedPayloads: [BoardStartedAnalytics] = []
+        let payload = BoardStartedAnalytics(
+            difficulty: .amateur,
+            boardSize: BoardDimensions(rows: 18, columns: 12)
+        )
+        let runner = GameEffectRunner(
+            soundClient: SoundClient(play: { _ in }),
+            analyticsClient: AnalyticsClient(
+                trackBoardStarted: { analyticsPayload in
+                    recordedPayloads.append(analyticsPayload)
+                }
+            )
+        )
+
+        runner.run([.trackBoardStarted(payload)]) {}
+
+        #expect(recordedPayloads == [payload])
+    }
+
     private func transition(
         state: GameState,
         action: GameAction,

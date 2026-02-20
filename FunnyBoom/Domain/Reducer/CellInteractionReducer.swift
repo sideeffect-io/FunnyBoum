@@ -39,10 +39,24 @@ extension GameReducer {
                 nextState.revealedTiles.insert(coordinate)
                 nextState.neutralizedBombs.insert(coordinate)
                 nextState.flaggedTiles.remove(coordinate)
-                return completeIfWon(state: nextState, board: board)
+                let completion = completeIfWon(state: nextState, board: board)
+                nextState = completion.state
+                events.append(contentsOf: completion.events)
+                appendBoardStartedEventIfNeeded(
+                    previousState: state,
+                    nextState: nextState,
+                    events: &events
+                )
+                return GameTransition(state: nextState, events: events)
             }
 
-            return loseRound(state: nextState, board: board)
+            var loss = loseRound(state: nextState, board: board)
+            appendBoardStartedEventIfNeeded(
+                previousState: state,
+                nextState: loss.state,
+                events: &loss.events
+            )
+            return loss
         }
 
         let revealedNow = floodReveal(
@@ -67,8 +81,35 @@ extension GameReducer {
         let completion = completeIfWon(state: nextState, board: board)
         nextState = completion.state
         events.append(contentsOf: completion.events)
+        appendBoardStartedEventIfNeeded(
+            previousState: state,
+            nextState: nextState,
+            events: &events
+        )
 
         return GameTransition(state: nextState, events: events)
+    }
+
+    static func appendBoardStartedEventIfNeeded(
+        previousState: GameState,
+        nextState: GameState,
+        events: inout [GameDomainEvent]
+    ) {
+        guard previousState.revealedTiles.isEmpty else {
+            return
+        }
+        guard !nextState.revealedTiles.isEmpty else {
+            return
+        }
+
+        events.append(
+            .trackBoardStarted(
+                BoardStartedAnalytics(
+                    difficulty: nextState.settings.difficulty,
+                    boardSize: nextState.dimensions
+                )
+            )
+        )
     }
 
     static func tapFunnyBoomCell(state: GameState, coordinate: BoardCoordinate) -> GameState {
