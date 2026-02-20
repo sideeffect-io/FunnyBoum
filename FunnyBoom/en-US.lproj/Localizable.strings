@@ -25,9 +25,11 @@
 "menu.difficulty" = "Difficulty";
 "menu.board" = "Board";
 "menu.scores" = "Scores";
+"menu.about" = "About";
 "menu.section.game" = "Game";
 "menu.rules.subtitle" = "View mechanics and special-square behavior";
 "menu.scores.subtitle" = "Open top 10 leaderboard";
+"menu.about.subtitle" = "Story behind Funny Boum";
 "menu.mine_density" = "Mine density %lld%%";
 "menu.board_size" = "Board Size";
 
@@ -67,6 +69,8 @@
 "sheet.rules.subtitle" = "Quick briefing before the blast";
 "sheet.scores.title" = "Top 10";
 "sheet.scores.subtitle" = "Fastest and sharpest bomb hunters";
+"sheet.about.title" = "About";
+"sheet.about.subtitle" = "From Turbo Pascal to iOS";
 "sheet.victory.title" = "Board Cleared";
 "sheet.victory.subtitle" = "Submit your run to the leaderboard";
 
@@ -82,6 +86,7 @@
 "rules.controls.title" = "Controls";
 "rules.controls.1" = "Quick press reveals a tile.";
 "rules.controls.2" = "Long press flags or unflags a tile.";
+"about.story" = "This game was originally developed in the mid-1990s in Turbo Pascal by Anthony Besq and Rénald Wittemberg. It took many weeks of work. It was ported to iOS in 2 days with Codex! What a time to be alive!";
 
 "scores.points_time" = "Points %lld • Time %llds";
 "victory.score_points_time" = "Score %lld • Points %lld • Time %llds";

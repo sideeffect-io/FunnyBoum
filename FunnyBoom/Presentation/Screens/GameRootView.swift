@@ -300,6 +300,9 @@ struct GameRootView: View {
                     highlightedScoreID = nil
                     presentOverlay(.scores)
                 },
+                onShowAbout: {
+                    presentOverlay(.about)
+                },
                 onForceSpecialMode: { mode in
                     viewModel.forceSpecialMode(mode)
                 },
@@ -317,6 +320,9 @@ struct GameRootView: View {
                 highlightedScoreID: highlightedScoreID,
                 onClose: dismissOverlay
             )
+
+        case .about:
+            AboutSheetView(onClose: dismissOverlay)
 
         case let .victory(victory):
             VictorySheetView(
@@ -580,6 +586,10 @@ struct GameRootView: View {
                 controlButton(title: String(localized: "menu.scores", defaultValue: "Scores")) {
                     highlightedScoreID = nil
                     presentOverlay(.scores)
+                }
+
+                controlButton(title: String(localized: "menu.about", defaultValue: "About")) {
+                    presentOverlay(.about)
                 }
 
 #if DEBUG

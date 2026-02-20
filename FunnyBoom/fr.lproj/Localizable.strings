@@ -25,9 +25,11 @@
 "menu.difficulty" = "Difficulté";
 "menu.board" = "Grille";
 "menu.scores" = "Scores";
+"menu.about" = "À propos";
 "menu.section.game" = "Jeu";
 "menu.rules.subtitle" = "Voir les mécaniques et les cases spéciales";
 "menu.scores.subtitle" = "Ouvrir le classement top 10";
+"menu.about.subtitle" = "L'histoire derrière Funny Boum";
 "menu.mine_density" = "Densité de mines %lld%%";
 "menu.board_size" = "Taille de grille";
 
@@ -67,6 +69,8 @@
 "sheet.rules.subtitle" = "Briefing rapide avant l'explosion";
 "sheet.scores.title" = "Top 10";
 "sheet.scores.subtitle" = "Les chasseurs de bombes les plus rapides et précis";
+"sheet.about.title" = "À propos";
+"sheet.about.subtitle" = "De Turbo Pascal à iOS";
 "sheet.victory.title" = "Grille nettoyée";
 "sheet.victory.subtitle" = "Envoyez votre partie au classement";
 
@@ -82,6 +86,7 @@
 "rules.controls.title" = "Commandes";
 "rules.controls.1" = "Appui court: révèle une case.";
 "rules.controls.2" = "Appui long: pose ou retire un drapeau.";
+"about.story" = "Ce jeu a été développé à l'origine au milieu des années 1990 en Turbo Pascal par Anthony Besq et Rénald Wittemberg. Il a demandé de nombreuses semaines de travail. Il a été porté sur iOS en 2 jours avec Codex ! Quelle époque pour être en vie !";
 
 "scores.points_time" = "Points %lld • Temps %llds";
 "victory.score_points_time" = "Score %lld • Points %lld • Temps %llds";

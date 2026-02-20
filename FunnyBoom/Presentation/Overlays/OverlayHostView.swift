@@ -14,6 +14,7 @@ enum ActiveOverlay: Equatable {
     case menu
     case rules
     case scores
+    case about
     case victory(PendingVictory)
 }
 
@@ -390,6 +391,7 @@ struct PhoneMenuSheetView: View {
     let onSetDifficulty: (GameDifficulty) -> Void
     let onSetBoardSize: (BoardSizePreset) -> Void
     let onShowScores: () -> Void
+    let onShowAbout: () -> Void
     let onForceSpecialMode: (SpecialModeStyle) -> Void
     let onClose: () -> Void
 
@@ -423,6 +425,16 @@ struct PhoneMenuSheetView: View {
                             ),
                             isSelected: false,
                             action: onShowScores
+                        )
+
+                        overlayActionButton(
+                            title: String(localized: "menu.about", defaultValue: "About"),
+                            subtitle: String(
+                                localized: "menu.about.subtitle",
+                                defaultValue: "Story behind Funny Boum"
+                            ),
+                            isSelected: false,
+                            action: onShowAbout
                         )
                     }
 
@@ -599,6 +611,37 @@ struct PhoneMenuSheetView: View {
         )
     }
 #endif
+}
+
+struct AboutSheetView: View {
+    let onClose: () -> Void
+
+    var body: some View {
+        RetroOverlayPanel(
+            title: String(localized: "sheet.about.title", defaultValue: "About"),
+            subtitle: String(
+                localized: "sheet.about.subtitle",
+                defaultValue: "From Turbo Pascal to iOS"
+            ),
+            onClose: onClose
+        ) {
+            VStack(alignment: .leading, spacing: 12) {
+                Text(
+                    String(
+                        localized: "about.story",
+                        defaultValue: "This game was originally developed in the mid-1990s in Turbo Pascal by Anthony Besq and Rénald Wittemberg. It took many weeks of work. It was ported to iOS in 2 days with Codex! What a time to be alive!"
+                    )
+                )
+                    .font(.system(size: 13, weight: .semibold, design: .monospaced))
+                    .foregroundStyle(RetroPalette.ink.opacity(0.78))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(8)
+            .retroBoardWell(cornerRadius: 10)
+        }
+        .frame(maxWidth: 560)
+    }
 }
 
 struct RulesSheetView: View {
