@@ -4,6 +4,12 @@
 **/.build/
 **/.swiftpm/
 /*.xcodeproj
+!FunnyBoom.xcodeproj/
+!FunnyBoom.xcodeproj/project.xcworkspace/
+!FunnyBoom.xcodeproj/project.xcworkspace/xcshareddata/
+!FunnyBoom.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/
+!FunnyBoom.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
+FunnyBoom.xcodeproj/xcshareddata/
 xcuserdata/
 DerivedData/
 .swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
